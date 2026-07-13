@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>L甲鉄城のカバネリ 海門決戦 設定判別ツール </title>
+    <title>L甲鉄城のカバネリ 海門決戦 設定判別ツール Pro</title>
     <style>
         * { box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #121212; color: #e0e0e0; margin: 0; padding: 15px; }
@@ -16,12 +16,10 @@
 
         .section { margin-bottom: 18px; padding: 14px; background: #2a2a2a; border-radius: 8px; border: 1px solid #333; }
         
-        /* 🆕 アコーディオン用のタイトルのスタイル（クリック可能にする） */
         .section-title { font-weight: bold; font-size: 1rem; margin-bottom: 12px; color: #ffb703; border-left: 4px solid #ffb703; padding-left: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }
         .section-title::after { content: '▲'; font-size: 0.75rem; color: #777; transition: transform 0.2s; }
         .section.collapsed .section-title::after { content: '▼'; }
         
-        /* 🆕 折りたたまれるコンテンツのラッパー */
         .section-content { transition: max-height 0.2s ease-out; overflow: hidden; }
         .section.collapsed .section-content { display: none; }
 
@@ -35,6 +33,10 @@
         .checkbox-group label { display: flex; align-items: center; font-size: 0.85rem; cursor: pointer; color: #ddd; }
         .checkbox-group input { margin-right: 10px; width: 18px; height: 18px; accent-color: #ff6b00; }
         
+        /* 🆕 前任者予想の表示用スタイル */
+        .start-prediction-box { background: #1a1c15; border: 1px dashed #aacc22; border-radius: 6px; padding: 10px; margin-top: 12px; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; }
+        .start-prediction-value { font-weight: bold; color: #aacc22; font-size: 0.95rem; }
+
         #result { margin-top: 20px; padding: 16px; background: #181818; border-radius: 8px; border: 1px solid #ff6b00; }
         .result-title { font-weight: bold; font-size: 1.15rem; color: #ff6b00; text-align: center; margin-bottom: 15px; }
         .result-bar-container { margin-bottom: 12px; }
@@ -50,7 +52,7 @@
 
 <div class="container">
     <div class="header-area">
-        <h1>L甲鉄城のカバネリ 海門決戦<br>設定判別ツール </h1>
+        <h1>L甲鉄城のカバネリ 海門決戦<br>設定判別ツール Pro</h1>
         <button class="btn-reset" onclick="resetForm()">↻ リセット</button>
     </div>
 
@@ -59,20 +61,26 @@
         <div class="section-title" style="color: #aacc22; border-left-color: #aacc22;" onclick="toggleSection(this)">打ち始め時のデータ (前任者分)</div>
         <div class="section-content">
             <div class="input-group">
-                <label>打ち始め 通常G数</label>
-                <input type="number" id="start_normal_g" value="0" min="0" oninput="calculateSettings()">
+                <label>通常時ゲーム数</label>
+                <input type="number" id="start_normal_g" value="0" min="0" oninput="syncTotalData(); calculateSettings();">
             </div>
             <div class="input-group">
-                <label>打ち始め CZ回数</label>
-                <input type="number" id="start_cz_count" value="0" min="0" oninput="calculateSettings()">
+                <label>CZ回数</label>
+                <input type="number" id="start_cz_count" value="0" min="0" oninput="syncTotalData(); calculateSettings();">
             </div>
             <div class="input-group">
-                <label>打ち始め ボーナス回数</label>
-                <input type="number" id="start_bonus_count" value="0" min="0" oninput="calculateSettings()">
+                <label>初当たりボーナス回数<br>(ハヤジロ、エピボ込)</label>
+                <input type="number" id="start_bonus_count" value="0" min="0" oninput="syncTotalData(); calculateSettings();">
             </div>
             <div class="input-group">
-                <label>打ち始め ST回数</label>
-                <input type="number" id="start_st_count" value="0" min="0" oninput="calculateSettings()">
+                <label>初当たりST回数</label>
+                <input type="number" id="start_st_count" value="0" min="0" oninput="syncTotalData(); calculateSettings();">
+            </div>
+            
+            <!-- 🆕 新規追加：前任者データのみの推測結果表示エリア -->
+            <div class="start-prediction-box">
+                <span>前任者データからの設定予想:</span>
+                <span id="start_prediction" class="start-prediction-value">データなし</span>
             </div>
         </div>
     </div>
@@ -82,11 +90,11 @@
         <div class="section-title" onclick="toggleSection(this)">現在の累計データ (データカウンター値)</div>
         <div class="section-content">
             <div class="input-group">
-                <label>累計 通常ゲーム数</label>
+                <label>通常時ゲーム数</label>
                 <input type="number" id="normal_g" value="0" min="0" oninput="syncTotalG(); calculateSettings();">
             </div>
             <div class="input-group">
-                <label>累計 CZ回数</label>
+                <label>CZ回数</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('cz_count', -1)">-</button>
                     <input type="number" id="cz_count" value="0" min="0" oninput="calculateSettings()">
@@ -94,7 +102,7 @@
                 </div>
             </div>
             <div class="input-group">
-                <label>累計 初当たりボーナス回数</label>
+                <label>初当たりボーナス回数<br>(ハヤジロ、エピボ込)</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('bonus_count', -1)">-</button>
                     <input type="number" id="bonus_count" value="0" min="0" oninput="calculateSettings()">
@@ -102,7 +110,7 @@
                 </div>
             </div>
             <div class="input-group">
-                <label>累計 ST初当たり回数</label>
+                <label>ST初当たり回数</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('st_count', -1)">-</button>
                     <input type="number" id="st_count" value="0" min="0" oninput="calculateSettings()">
@@ -111,7 +119,7 @@
             </div>
             <hr style="border: 0; border-top: 1px solid #444; margin: 12px 0;">
             <div class="input-group">
-                <label>総マイスロG数 (通常+AT)</label>
+                <label>総G数 (通常+ST中)</label>
                 <input type="number" id="total_g" value="0" min="0" oninput="calculateSettings()">
             </div>
             <div class="input-group">
@@ -350,7 +358,7 @@
         <div class="section-content">
             <div class="checkbox-group">
                 <label><input type="checkbox" id="fix_6" onchange="calculateSettings()"> 設定6 確定</label>
-                <label><input type="checkbox" id="fix_5" onchange="calculateSettings()"> 設定5 以上確定</label>
+                <label><input type="checkbox" id="fix_5" onchange="changeVal'fix_5'"> 設定5 以上確定</label>
                 <label><input type="checkbox" id="fix_4" onchange="calculateSettings()"> 設定4 以上確定</label>
                 <label><input type="checkbox" id="fix_3" onchange="calculateSettings()"> 設定3 以上確定</label>
                 <label><input type="checkbox" id="fix_2" onchange="calculateSettings()"> 設定2 以上確定</label>
@@ -358,7 +366,7 @@
         </div>
     </div>
 
-    <!-- 結果表示枠（ここは常に見えるように固定） -->
+    <!-- 結果表示枠 -->
     <div id="result">
         <div class="result-title">📊 設定推測結果 (確率配分)</div>
         <div id="result-bars"></div>
@@ -371,7 +379,6 @@
 <script>
 const STORAGE_KEY = 'kabaneri_tool_data_v2';
 
-// 🆕 セクションの開閉を制御する関数
 function toggleSection(titleElement) {
     const section = titleElement.parentElement;
     section.classList.toggle('collapsed');
@@ -391,6 +398,32 @@ function syncTotalG() {
     const totalGInput = document.getElementById('total_g');
     if (parseInt(totalGInput.value) === 0 || parseInt(totalGInput.value) < normalG) {
         totalGInput.value = normalG;
+    }
+}
+
+function syncTotalData() {
+    const startNormalG = parseInt(document.getElementById('start_normal_g').value) || 0;
+    const startCz = parseInt(document.getElementById('start_cz_count').value) || 0;
+    const startBonus = parseInt(document.getElementById('start_bonus_count').value) || 0;
+    const startSt = parseInt(document.getElementById('start_st_count').value) || 0;
+
+    const normalGEl = document.getElementById('normal_g');
+    const czEl = document.getElementById('cz_count');
+    const bonusEl = document.getElementById('bonus_count');
+    const stEl = document.getElementById('st_count');
+
+    if (parseInt(normalGEl.value) === 0 || parseInt(normalGEl.value) < startNormalG) {
+        normalGEl.value = startNormalG;
+        syncTotalG(); 
+    }
+    if (parseInt(czEl.value) === 0 || parseInt(czEl.value) < startCz) {
+        czEl.value = startCz;
+    }
+    if (parseInt(bonusEl.value) === 0 || parseInt(bonusEl.value) < startBonus) {
+        bonusEl.value = startBonus;
+    }
+    if (parseInt(stEl.value) === 0 || parseInt(stEl.value) < startSt) {
+        stEl.value = startSt;
     }
 }
 
@@ -447,6 +480,12 @@ function logBinomialPdf(k, n, p) {
     return k * Math.log(p) + (n - k) * Math.log(1 - p);
 }
 
+// 基本確率共通データ
+const czProbs    = { 1: 247.9, 2: 238.0, 3: 228.0, 4: 218.0, 5: 210.0, 6: 195.6 };
+const bonusProbs = { 1: 254.2, 2: 242.3, 3: 239.6, 4: 214.0, 5: 203.2, 6: 195.1 };
+const stProbs    = { 1: 422.5, 2: 405.9, 3: 398.7, 4: 357.2, 5: 332.6, 6: 318.5 };
+const bellProbs  = { 1: 121.1, 2: 114.4, 3: 112.8, 4: 106.2, 5: 104.2, 6: 99.1 };
+
 function calculateSettings() {
     saveData();
     const barsContainer = document.getElementById('result-bars');
@@ -456,6 +495,29 @@ function calculateSettings() {
     const startCzCount = parseInt(document.getElementById('start_cz_count').value) || 0;
     const startBonusCount = parseInt(document.getElementById('start_bonus_count').value) || 0;
     const startStCount = parseInt(document.getElementById('start_st_count').value) || 0;
+
+    // 🆕 打ち始めデータのみから推測計算を行うロジック
+    const predEl = document.getElementById('start_prediction');
+    if (startNormalG === 0) {
+        predEl.innerText = 'データなし';
+    } else if (startNormalG < 300) {
+        predEl.innerText = 'サンプル不足';
+    } else {
+        let startLogScore = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+        if (startCzCount > 0) { for (let s = 1; s <= 6; s++) startLogScore[s] += logPoissonPdf(startCzCount, startNormalG, czProbs[s]); }
+        if (startBonusCount > 0) { for (let s = 1; s <= 6; s++) startLogScore[s] += logPoissonPdf(startBonusCount, startNormalG, bonusProbs[s]); }
+        if (startStCount > 0) { for (let s = 1; s <= 6; s++) startLogScore[s] += logPoissonPdf(startStCount, startNormalG, stProbs[s]); }
+        
+        let maxStartLog = -Infinity; let bestStartSet = 1;
+        for (let s = 1; s <= 6; s++) { if (startLogScore[s] > maxStartLog) { maxStartLog = startLogScore[s]; bestStartSet = s; } }
+        
+        // 期待度の簡易指標（高設定域確率の優位性判断）
+        let notice = '';
+        if (bestStartSet >= 4) {
+            notice = (bestStartSet === 6) ? ' (期待度最高)' : ' (期待度高)';
+        }
+        predEl.innerText = `設定 ${bestStartSet}${notice}`;
+    }
 
     const totalNormalG = parseInt(document.getElementById('normal_g').value) || 0;
     const totalCzCount = parseInt(document.getElementById('cz_count').value) || 0;
@@ -525,11 +587,6 @@ function calculateSettings() {
     if (omiKatana > 0) valid[1] = false;
 
     if (vNone > 0) { valid[1] = valid[2] = valid[3] = valid[4] = false; }
-
-    const czProbs    = { 1: 247.9, 2: 238.0, 3: 228.0, 4: 218.0, 5: 210.0, 6: 195.6 };
-    const bonusProbs = { 1: 254.2, 2: 242.3, 3: 239.6, 4: 214.0, 5: 203.2, 6: 195.1 };
-    const stProbs    = { 1: 422.5, 2: 405.9, 3: 398.7, 4: 357.2, 5: 332.6, 6: 318.5 };
-    const bellProbs  = { 1: 121.1, 2: 114.4, 3: 112.8, 4: 106.2, 5: 104.2, 6: 99.1 };
 
     if (normalG > 0 && czCount > 0) {
         for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logPoissonPdf(czCount, normalG, czProbs[s]) * 0.35; }
