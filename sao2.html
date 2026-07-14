@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スマスロ SAO2 設定判別ツール</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-color: #333;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .header h1 {
+            font-size: 1.2rem;
+            color: #1a1a1a;
+            margin: 0;
+        }
+        .header-btns {
+            display: flex;
+            gap: 6px;
+        }
+        .btn-header {
+            border: none;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .btn-toggle-all {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-reset {
+            background-color: #dc3545;
+            color: white;
+            box-shadow: 0 2px 4px rgba(220,53,69,0.2);
+        }
+        .btn-reset:active {
+            background-color: #bd2130;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+        
+        /* 折りたたみヘッダーのスタイル */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        .card-header h2 {
+            font-size: 1.05rem;
+            margin: 0;
+            padding: 0;
+            border-bottom: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .badge-active {
+            display: none;
+            background: #28a745;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: normal;
+        }
+        .arrow-icon {
+            font-size: 0.8rem;
+            color: #6c757d;
+            transition: transform 0.3s ease;
+        }
+        
+        .card-body {
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        /* 折りたたまれた状態 */
+        .card.collapsed .card-body {
+            display: none;
+        }
+        .card.collapsed .arrow-icon {
+            transform: rotate(-90deg);
+        }
+
+        .form-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            flex-grow: 1;
+        }
+        .counter-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-cnt {
+            width: 36px;
+            height: 36px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: 1px solid #ccc;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+        .btn-cnt:active {
+            background: #e9ecef;
+        }
+        .btn-cnt.minus { color: #dc3545; }
+        .btn-cnt.plus {
+            color: #28a745;
+            background: #e8f5e9;
+            border-color: #a5d6a7;
+        }
+        .btn-quick {
+            padding: 6px 8px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border: 1px solid #ccc;
+            background: #f8f9fa;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .btn-quick:active { background: #e2e6ea; }
+        .input-val {
+            width: 48px;
+            padding: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+        }
+        .game-input {
+            width: 70px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            text-align: center;
+            font-weight: bold;
+        }
+        .prob-display {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-left: 5px;
+        }
+        .result-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .setting-label {
+            width: 60px;
+            font-weight: bold;
+        }
+        .bar-container {
+            flex-grow: 1;
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 22px;
+            overflow: hidden;
+            margin: 0 10px;
+        }
+        .bar {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .setting-6 .bar { background: #e83e8c; }
+        .setting-5 .bar { background: #fd7e14; }
+        .percent {
+            width: 55px;
+            text-align: right;
+            font-size: 0.95rem;
+            font-weight: bold;
+        }
+
+        .prev-result-container {
+            margin-top: 12px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .prev-result-title {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .prev-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 4px;
+            text-align: center;
+        }
+        .prev-item {
+            background: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 4px 2px;
+            font-size: 0.75rem;
+        }
+        .prev-setting-num {
+            font-weight: bold;
+            color: #495057;
+            border-bottom: 1px solid #f1f3f5;
+            margin-bottom: 2px;
+        }
+        .prev-setting-pct {
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>スマスロ SAO2 設定判別</h1>
+        <div class="header-btns">
+            <button class="btn-header btn-toggle-all" onclick="toggleAllCards()">開閉切替</button>
+            <button class="btn-header btn-reset" onclick="resetAll()">全リセット</button>
+        </div>
+    </div>
+
+    <!-- 1. 前任者データ -->
+    <div class="card" style="border-left: 5px solid #6c757d;">
+        <div class="card-header" onclick="toggleCard(this)">
+            <h2 style="color: #495057;">前任者データ <span class="badge-active">入力あり</span></h2>
+            <span class="arrow-icon">▼</span>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label for="prev_games">通常G数</label>
+                <input type="number" id="prev_games" class="game-input count-field" placeholder="0" min="0" oninput="syncPrevData()">
+            </div>
+            <div class="form-group">
+                <label for="prev_cz">CZ回数 <span id="prev_cz_prob" class="prob-display">(-)</span></label>
+                <input type="number" id="prev_cz" class="input-val count-field" placeholder="0" min="0" oninput="syncPrevData()">
+            </div>
+            <div class="form-group">
+                <label for="prev_at">AT初当り回数 <span id="prev_at_prob" class="prob-display">(-)</span></label>
+                <input type="number" id="prev_at" class="input-val count-field" placeholder="0" min="0" oninput="syncPrevData()">
+            </div>
+
+            <div class="prev-result-container">
+                <div class="prev-result-title">前任者データの初当たり確率（CZ・AT）による予測</div>
+                <div id="prev_results" class="prev-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 累計データ -->
+    <div class="card" style="border-left: 5px solid #007bff;">
+        <div class="card-header" onclick="toggleCard(this)">
+            <h2 style="color: #007bff;">累計データ <span class="badge-active">入力あり</span></h2>
+            <span class="arrow-icon">▼</span>
+        </div>
+        <div class="card-body">
+            <div class="form-group" style="background: #f8f9fa; padding: 8px; border-radius: 6px; border: 1px dashed #ced4da; margin-bottom: 12px;">
+                <label for="total_games" style="color: #007bff;">累計総ゲーム数<br><span style="font-size:0.75rem; color:#6c757d; font-weight:normal;">(通常時 ＋ AT中すべて合わせたG数)</span></label>
+                <div class="counter-group">
+                    <input type="number" id="total_games" class="game-input count-field" placeholder="0" min="0" oninput="limitCumulativeData()">
+                    <button class="btn-quick" style="background: #e7f1ff; border-color: #b8daff; color: #004085;" onclick="addTotalGames(10)">+10</button>
+                    <button class="btn-quick" style="background: #e7f1ff; border-color: #b8daff; color: #004085;" onclick="addTotalGames(100)">+100</button>
+                    <button class="btn-quick" style="background: #e7f1ff; border-color: #b8daff; color: #004085;" onclick="addTotalGames(-100)">-100</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="games">累計通常G数</label>
+                <div class="counter-group">
+                    <input type="number" id="games" class="game-input count-field" placeholder="0" min="0" oninput="limitCumulativeData()">
+                    <button class="btn-quick" onclick="addGames(10)">+10</button>
+                    <button class="btn-quick" onclick="addGames(100)">+100</button>
+                    <button class="btn-quick" onclick="addGames(-100)">-100</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>累計CZ回数 <span id="total_cz_prob" class="prob-display">(-)</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('cz_count', -1)">-</button>
+                    <input type="number" id="cz_count" class="input-val count-field" placeholder="0" min="0" oninput="limitCumulativeData()">
+                    <button class="btn-cnt plus" onclick="changeVal('cz_count', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>累計AT初当り回数 <span id="total_at_prob" class="prob-display">(-)</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('at_count', -1)">-</button>
+                    <input type="number" id="at_count" class="input-val count-field" placeholder="0" min="0" oninput="limitCumulativeData()">
+                    <button class="btn-cnt plus" onclick="changeVal('at_count', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="color: #6f42c1;">確定CZ回数 <span id="cz_direct_prob" class="prob-display">(-)</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('cz_direct_count', -1)">-</button>
+                    <input type="number" id="cz_direct_count" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('cz_direct_count', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>強チャンス目B <span id="chance_b_prob" class="prob-display">(-)</span><br><span style="font-size:0.75rem; color:#6c757d; font-weight:normal;">上段スイカ・スイカ・ベル（総G数参照）</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('chance_b_count', -1)">-</button>
+                    <input type="number" id="chance_b_count" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="chance_b_count" onclick="changeVal('chance_b_count', 1)">+</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. 低確スイカからのSC当選判別 -->
+    <div class="card" style="border-left: 5px solid #28a745;">
+        <div class="card-header" onclick="toggleCard(this)">
+            <h2 style="color: #28a745;">通常時スイカからのSC当選判別 <span class="badge-active">入力あり</span></h2>
+            <span class="arrow-icon">▼</span>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label>通常時スイカ試行回数<br><span style="font-size:0.75rem; color:#6c757d; font-weight:normal;">(通常時で引いたスイカの合計)</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('watermelon_low_total', -1)">-</button>
+                    <input type="number" id="watermelon_low_total" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('watermelon_low_total', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>うちSC当選回数<br><span style="font-size:0.75rem; color:#6c757d; font-weight:normal;">(通常時スイカからSCに突入した回数)</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('watermelon_sc_low', -1)">-</button>
+                    <input type="number" id="watermelon_sc_low" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('watermelon_sc_low', 1)">+</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. 強チェリーからのCZ当選判別 -->
+    <div class="card" style="border-left: 5px solid #dc3545;">
+        <div class="card-header" onclick="toggleCard(this)">
+            <h2 style="color: #dc3545;">強チェリーからのCZ当選判別 <span class="badge-active">入力あり</span></h2>
+            <span class="arrow-icon">▼</span>
+        </div>
+        <div class="card-body">
+            <!-- 通常時 -->
+            <div class="form-group">
+                <label>通常時 強チェリー試行回数<br><span style="font-size:0.75rem; color:#6c757d; font-weight:normal;">(通常時の強チェリー引いた回数)</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('cherry_low_total', -1)">-</button>
+                    <input type="number" id="cherry_low_total" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('cherry_low_total', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>うち通常CZ当選回数<br><span style="font-size:0.75rem; color:#6c757d; font-weight:normal;">(通常時の強チェリーからCZに当選した回数)</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('cherry_cz_low', -1)">-</button>
+                    <input type="number" id="cherry_cz_low" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('cherry_cz_low', 1)">+</button>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px dashed #dee2e6; margin: 12px 0;">
+
+            <!-- 高確時 -->
+            <div class="form-group">
+                <label>高確時 強チェリー試行回数<br><span style="font-size:0.75rem; color:#6c757d; font-weight:normal;">(高確滞在時の強チェリー引いた回数)</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('cherry_high_total', -1)">-</button>
+                    <input type="number" id="cherry_high_total" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('cherry_high_total', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>うち高確CZ当選回数<br><span style="font-size:0.75rem; color:#6c757d; font-weight:normal;">(高確強チェリーからCZに当選した回数)</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('cherry_cz_high', -1)">-</button>
+                    <input type="number" id="cherry_cz_high" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('cherry_cz_high', 1)">+</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. CZ失敗時恩恵判別 -->
+    <div class="card" style="border-left: 5px solid #17a2b8;">
+        <div class="card-header" onclick="toggleCard(this)">
+            <h2 style="color: #17a2b8;">CZ失敗時恩恵判別 <span class="badge-active">入力あり</span></h2>
+            <span class="arrow-icon">▼</span>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label>CZ失敗回数<br><span style="font-size:0.75rem; color:#6c757d; font-weight:normal;">(CZを失敗した合計回数)</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('cz_fail_total', -1)">-</button>
+                    <input type="number" id="cz_fail_total" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('cz_fail_total', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>うちアイテム獲得回数<br><span style="font-size:0.75rem; color:#6c757d; font-weight:normal;">(CZ失敗時にアイテムを獲得した回数)</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('cz_fail_item', -1)">-</button>
+                    <input type="number" id="cz_fail_item" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('cz_fail_item', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>うち「曠野の決闘」当選回数<br><span style="font-size:0.75rem; color:#6c757d; font-weight:normal;">(CZ失敗時に曠野の決闘に当選した回数)</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('cz_fail_duel', -1)">-</button>
+                    <input type="number" id="cz_fail_duel" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('cz_fail_duel', 1)">+</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. 終了画面カウンター -->
+    <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+            <h2>終了画面（自分遊技分） <span class="badge-active">入力あり</span></h2>
+            <span class="arrow-icon">▼</span>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label>デフォルト</label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('screen_def', -1)">-</button>
+                    <input type="number" id="screen_def" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('screen_def', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>奇数設定示唆（制服）</label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('screen_odd', -1)">-</button>
+                    <input type="number" id="screen_odd" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('screen_odd', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>偶数設定示唆（ソファー）</label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('screen_even', -1)">-</button>
+                    <input type="number" id="screen_even" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('screen_even', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>高設定示唆・弱（木漏れ日）</label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('screen_high_l', -1)">-</button>
+                    <input type="number" id="screen_high_l" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('screen_high_l', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>高設定示唆・強（夏祭り）</label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('screen_high_h', -1)">-</button>
+                    <input type="number" id="screen_high_h" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('screen_high_h', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="color: #fd7e14;">幼少期（設定5優遇）</label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('screen_child', -1)">-</button>
+                    <input type="number" id="screen_child" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('screen_child', 1)">+</button>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 12px 0;">
+
+            <div class="form-group">
+                <label style="color: #007bff;">Yシャツ（設定2以上）</label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('screen_2plus', -1)">-</button>
+                    <input type="number" id="screen_2plus" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('screen_2plus', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="color: #fd7e14;">お風呂（設定3以上）</label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('screen_3plus', -1)">-</button>
+                    <input type="number" id="screen_3plus" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('screen_3plus', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="color: #28a745;">水着（設定4以上）</label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('screen_4plus', -1)">-</button>
+                    <input type="number" id="screen_4plus" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('screen_4plus', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="color: #e83e8c;">パジャマ（設定6濃厚）</label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('screen_6', -1)">-</button>
+                    <input type="number" id="screen_6" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('screen_6', 1)">+</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. トロフィー -->
+    <div class="card" style="border-left: 5px solid #d4af37;">
+        <div class="card-header" onclick="toggleCard(this)">
+            <h2 style="color: #d4af37;">トロフィー <span class="badge-active">入力あり</span></h2>
+            <span class="arrow-icon">▼</span>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label style="color: #b87333;">銅（設定2以上）</label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('trophy_bronze', -1)">-</button>
+                    <input type="number" id="trophy_bronze" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('trophy_bronze', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="color: #708090;">銀（設定3以上）</label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('trophy_silver', -1)">-</button>
+                    <input type="number" id="trophy_silver" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('trophy_silver', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="color: #d4af37;">金（設定4以上）</label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('trophy_gold', -1)">-</button>
+                    <input type="number" id="trophy_gold" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('trophy_gold', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="color: #8a2be2;">稲妻柄（設定5以上）</label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('trophy_zebra', -1)">-</button>
+                    <input type="number" id="trophy_zebra" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('trophy_zebra', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="color: #e83e8c;">虹（設定6濃厚）</label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('trophy_rainbow', -1)">-</button>
+                    <input type="number" id="trophy_rainbow" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('trophy_rainbow', 1)">+</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. エンディング示唆 -->
+    <div class="card" style="border-left: 5px solid #17a2b8;">
+        <div class="card-header" onclick="toggleCard(this)">
+            <h2 style="color: #17a2b8;">エンディング キャラ示唆 <span class="badge-active">入力あり</span></h2>
+            <span class="arrow-icon">▼</span>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label>シノン、ユウキ<br><span style="font-size:0.8rem; color:#6c757d; font-weight:normal;">偶数示唆</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('ed_sinon_yuuki', -1)">-</button>
+                    <input type="number" id="ed_sinon_yuuki" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('ed_sinon_yuuki', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>キリト<br><span style="font-size:0.8rem; color:#6c757d; font-weight:normal;">奇数示唆</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('ed_kirito', -1)">-</button>
+                    <input type="number" id="ed_kirito" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('ed_kirito', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>シリカ<br><span style="font-size:0.8rem; color:#6c757d; font-weight:normal;">偶数示唆強</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('ed_silica', -1)">-</button>
+                    <input type="number" id="ed_silica" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('ed_silica', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>リズベット<br><span style="font-size:0.8rem; color:#6c757d; font-weight:normal;">奇数示唆強</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('ed_lisbeth', -1)">-</button>
+                    <input type="number" id="ed_lisbeth" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('ed_lisbeth', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>剣士X、リーファ<br><span style="font-size:0.8rem; color:#6c757d; font-weight:normal;">高設定示唆</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('ed_swordsman_leafa', -1)">-</button>
+                    <input type="number" id="ed_swordsman_leafa" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('ed_swordsman_leafa', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>志乃、ユイ<br><span style="font-size:0.8rem; color:#6c757d; font-weight:normal;">高設定示唆強</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('ed_shino_yui', -1)">-</button>
+                    <input type="number" id="ed_shino_yui" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('ed_shino_yui', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="color: #e83e8c;">シノン＆キリト、アスナ＆ユウキ<br><span style="font-size:0.8rem; color:#e83e8c; font-weight:normal;">設定6濃厚</span></label>
+                <div class="counter-group">
+                    <button class="btn-cnt minus" onclick="changeVal('ed_6', -1)">-</button>
+                    <input type="number" id="ed_6" class="input-val count-field" placeholder="0" min="0" oninput="calculateSetting()">
+                    <button class="btn-cnt plus" onclick="changeVal('ed_6', 1)">+</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- リアルタイム結果（常時表示） -->
+    <div class="card" style="margin-top: 20px; border-top: 4px solid #007bff;">
+        <h2 style="margin-bottom: 12px; border-bottom: 2px solid #007bff; padding-bottom: 5px;">総合判別結果 (リアルタイム)</h2>
+        <div id="results"></div>
+    </div>
+</div>
+
+<script>
+// カードの開閉制御
+function toggleCard(headerEl) {
+    const card = headerEl.parentElement;
+    card.classList.toggle('collapsed');
+}
+
+let isAllCollapsed = false;
+function toggleAllCards() {
+    const cards = document.querySelectorAll('.card');
+    isAllCollapsed = !isAllCollapsed;
+    cards.forEach(card => {
+        if (card.querySelector('.card-header')) {
+            if (isAllCollapsed) {
+                card.classList.add('collapsed');
+            } else {
+                card.classList.remove('collapsed');
+            }
+        }
+    });
+}
+
+// 各カードに入力があるかチェックしてバッジを表示
+function updateInputBadges() {
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+        const inputs = card.querySelectorAll('.count-field');
+        let hasValue = false;
+        inputs.forEach(input => {
+            if (input.value && parseInt(input.value, 10) > 0) {
+                hasValue = true;
+            }
+        });
+        const badge = card.querySelector('.badge-active');
+        if (badge) {
+            badge.style.display = hasValue ? 'inline-block' : 'none';
+        }
+    });
+}
+
+function getVal(id) {
+    const el = document.getElementById(id);
+    if (!el) return 0;
+    const v = parseInt(el.value, 10);
+    return isNaN(v) ? 0 : v;
+}
+
+function resetAll() {
+    if (confirm('入力内容を全リセットしますか？')) {
+        const fields = document.querySelectorAll('.count-field');
+        fields.forEach(f => f.value = '');
+        calculateSetting();
+    }
+}
+
+function syncPrevData() {
+    const prevG = getVal('prev_games');
+    const prevCZ = getVal('prev_cz');
+    const prevAT = getVal('prev_at');
+
+    if (getVal('games') < prevG) document.getElementById('games').value = prevG || '';
+    if (getVal('cz_count') < prevCZ) document.getElementById('cz_count').value = prevCZ || '';
+    if (getVal('at_count') < prevAT) document.getElementById('at_count').value = prevAT || '';
+
+    const currentG = getVal('games');
+    if (getVal('total_games') < currentG) document.getElementById('total_games').value = currentG || '';
+
+    calculateSetting();
+}
+
+function limitCumulativeData() {
+    const prevG = getVal('prev_games');
+    const prevCZ = getVal('prev_cz');
+    const prevAT = getVal('prev_at');
+
+    if (getVal('games') < prevG) document.getElementById('games').value = prevG || '';
+    if (getVal('cz_count') < prevCZ) document.getElementById('cz_count').value = prevCZ || '';
+    if (getVal('at_count') < prevAT) document.getElementById('at_count').value = prevAT || '';
+
+    const currentG = getVal('games');
+    if (getVal('total_games') < currentG) {
+        document.getElementById('total_games').value = currentG || '';
+    }
+
+    calculateSetting();
+}
+
+function changeVal(id, amount) {
+    const el = document.getElementById(id);
+    let val = getVal(id);
+    val = Math.max(0, val + amount);
+    el.value = val > 0 ? val : '';
+
+    if (id === 'cz_count' || id === 'at_count') {
+        limitCumulativeData();
+    } else {
+        calculateSetting();
+    }
+}
+
+function addGames(amount) {
+    const el = document.getElementById('games');
+    let val = getVal('games');
+    val = Math.max(0, val + amount);
+    el.value = val > 0 ? val : '';
+    limitCumulativeData();
+}
+
+function addTotalGames(amount) {
+    const el = document.getElementById('total_games');
+    let val = getVal('total_games');
+    val = Math.max(0, val + amount);
+    el.value = val > 0 ? val : '';
+    limitCumulativeData();
+}
+
+const SPECS = {
+    cz: [1/238.4, 1/232.3, 1/232.7, 1/218.9, 1/225.2, 1/191.7],
+    at: [1/386.2, 1/364.3, 1/368.1, 1/326.8, 1/340.6, 1/269.6],
+    chance_b: [1/1057, 1/1021, 1/926, 1/860, 1/720, 1/620],
+    sc_low: [0.402, 0.445, 0.410, 0.484, 0.422, 0.551],
+    
+    // 通常時 強チェリーからのCZ当選率
+    cherry_cz_low: [0.200, 0.210, 0.200, 0.250, 0.200, 0.330],
+    // 高確時 強チェリーからのCZ当選率
+    cherry_cz_high: [0.500, 0.510, 0.520, 0.550, 0.580, 0.600],
+    
+    // 確定CZ出現率 (直撃CZ)
+    cz_direct: [1/20177.5, 1/17579.1, 1/17586.3, 1/13784.5, 1/11459.0, 1/7077.2],
+
+    // CZ失敗時アイテム獲得率
+    cz_fail_item_rate: [0.203, 0.211, 0.219, 0.227, 0.250, 0.301],
+    // CZ失敗時「曠野の決闘」発生率
+    cz_fail_duel_rate: [1/128.0, 1/112.0, 1/96.0, 1/88.0, 1/80.0, 1/64.0]
+};
+
+const SCREEN_RATIOS = {
+    odd:    [0.30, 0.20, 0.30, 0.20, 0.30, 0.20],
+    even:   [0.20, 0.30, 0.20, 0.30, 0.20, 0.30],
+    high_l: [0.10, 0.10, 0.15, 0.15, 0.20, 0.20],
+    high_h: [0.02, 0.02, 0.03, 0.03, 0.05, 0.05],
+    child:  [0.005, 0.005, 0.005, 0.005, 0.04, 0.02],
+    def:    [0.375, 0.375, 0.315, 0.315, 0.21, 0.23]
+};
+
+const ED_RATIOS = {
+    sinon_yuuki:      [0.40, 0.60, 0.40, 0.60, 0.40, 0.60],
+    kirito:           [0.60, 0.40, 0.60, 0.40, 0.60, 0.40],
+    silica:           [0.30, 0.70, 0.30, 0.70, 0.30, 0.70],
+    lisbeth:          [0.70, 0.30, 0.70, 0.30, 0.70, 0.30],
+    swordsman_leafa:  [0.08, 0.08, 0.12, 0.12, 0.15, 0.15],
+    shino_yui:        [0.02, 0.02, 0.04, 0.04, 0.07, 0.07]
+};
+
+function poissonProbability(lambda, k) {
+    let p = Math.exp(-lambda);
+    for (let i = 1; i <= k; i++) {
+        p *= lambda / i;
+    }
+    return p;
+}
+
+function calculateSetting() {
+    updateInputBadges();
+
+    const prevG = getVal('prev_games');
+    const prevCZ = getVal('prev_cz');
+    const prevAT = getVal('prev_at');
+
+    document.getElementById('prev_cz_prob').textContent = (prevG > 0 && prevCZ > 0) ? `(1/${(prevG / prevCZ).toFixed(1)})` : '(-)';
+    document.getElementById('prev_at_prob').textContent = (prevG > 0 && prevAT > 0) ? `(1/${(prevG / prevAT).toFixed(1)})` : '(-)';
+
+    // 1. 前任者判定
+    let prevLikelihoods = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
+    if (prevG > 0) {
+        for (let i = 0; i < 6; i++) {
+            const expCZ = prevG * SPECS.cz[i];
+            const expAT = prevG * SPECS.at[i];
+            const pCZ = poissonProbability(expCZ, prevCZ);
+            const pAT = poissonProbability(expAT, prevAT);
+            prevLikelihoods[i] = pCZ * pAT;
+        }
+    }
+
+    const prevTotal = prevLikelihoods.reduce((a, b) => a + b, 0);
+    const prevResultsContainer = document.getElementById('prev_results');
+    prevResultsContainer.innerHTML = '';
+
+    prevLikelihoods.forEach((l, index) => {
+        const percentage = prevTotal > 0 ? ((l / prevTotal) * 100).toFixed(1) : "16.7";
+        const item = document.createElement('div');
+        item.className = 'prev-item';
+        item.innerHTML = `
+            <div class="prev-setting-num">設${index + 1}</div>
+            <div class="prev-setting-pct">${percentage}%</div>
+        `;
+        prevResultsContainer.appendChild(item);
+    });
+
+    // 2. 累計判定
+    const G = getVal('games');
+    const TotalG = getVal('total_games');
+    const CZ = getVal('cz_count');
+    const AT = getVal('at_count');
+    const CZDirect = getVal('cz_direct_count');
+    const ChanceB = getVal('chance_b_count');
+    
+    // スイカ・強チェリー関連データ
+    const WatermelonLowTotal = getVal('watermelon_low_total');
+    const WatermelonSCLow = getVal('watermelon_sc_low');
+    
+    const CherryLowTotal = getVal('cherry_low_total');
+    const CherryCZLow = getVal('cherry_cz_low');
+    const CherryHighTotal = getVal('cherry_high_total');
+    const CherryCZHigh = getVal('cherry_cz_high');
+
+    // CZ失敗時恩恵データ
+    const CZFailTotal = getVal('cz_fail_total');
+    const CZFailItem = getVal('cz_fail_item');
+    const CZFailDuel = getVal('cz_fail_duel');
+
+    document.getElementById('total_cz_prob').textContent = (G > 0 && CZ > 0) ? `(1/${(G / CZ).toFixed(1)})` : '(-)';
+    document.getElementById('total_at_prob').textContent = (G > 0 && AT > 0) ? `(1/${(G / AT).toFixed(1)})` : '(-)';
+    document.getElementById('cz_direct_prob').textContent = (G > 0 && CZDirect > 0) ? `(1/${(G / CZDirect).toFixed(1)})` : '(-)';
+    document.getElementById('chance_b_prob').textContent = (TotalG > 0 && ChanceB > 0) ? `(1/${(TotalG / ChanceB).toFixed(1)})` : '(-)';
+
+    // 終了画面
+    const s_def = getVal('screen_def');
+    const s_odd = getVal('screen_odd');
+    const s_even = getVal('screen_even');
+    const s_high_l = getVal('screen_high_l');
+    const s_high_h = getVal('screen_high_h');
+    const s_child = getVal('screen_child');
+
+    const s2p = getVal('screen_2plus');
+    const s3p = getVal('screen_3plus');
+    const s4p = getVal('screen_4plus');
+    const s6 = getVal('screen_6');
+
+    // トロフィー
+    const t_bronze = getVal('trophy_bronze');
+    const t_silver = getVal('trophy_silver');
+    const t_gold = getVal('trophy_gold');
+    const t_zebra = getVal('trophy_zebra');
+    const t_rainbow = getVal('trophy_rainbow');
+
+    // エンディング
+    const ed_sinon_yuuki = getVal('ed_sinon_yuuki');
+    const ed_kirito = getVal('ed_kirito');
+    const ed_silica = getVal('ed_silica');
+    const ed_lisbeth = getVal('ed_lisbeth');
+    const ed_swordsman_leafa = getVal('ed_swordsman_leafa');
+    const ed_shino_yui = getVal('ed_shino_yui');
+    const ed_6 = getVal('ed_6');
+
+    let likelihoods = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
+
+    // トロフィーによる否定適用
+    if (t_bronze > 0) { likelihoods[0] = 0; }
+    if (t_silver > 0) { likelihoods[0] = 0; likelihoods[1] = 0; }
+    if (t_gold > 0)   { likelihoods[0] = 0; likelihoods[1] = 0; likelihoods[2] = 0; }
+    if (t_zebra > 0)  { likelihoods[0] = 0; likelihoods[1] = 0; likelihoods[2] = 0; }
+    if (t_rainbow > 0){ likelihoods = [0, 0, 0, 0, 0, 1]; }
+
+    // 終了画面による否定適用
+    if (s2p > 0) likelihoods[0] = 0; 
+    if (s3p > 0) { likelihoods[0] = 0; likelihoods[1] = 0; } 
+    if (s4p > 0) { likelihoods[0] = 0; likelihoods[1] = 0; likelihoods[2] = 0; } 
+    if (s6 > 0)  { likelihoods = [0, 0, 0, 0, 0, 1]; } 
+
+    // エンディング設定6濃厚適用
+    if (ed_6 > 0) { likelihoods = [0, 0, 0, 0, 0, 1]; }
+
+    // CZ, AT, 確定CZ（通常G数参照）のポアソン分布計算
+    if (G > 0) {
+        for (let i = 0; i < 6; i++) {
+            if (likelihoods[i] === 0) continue;
+
+            const expCZ = G * SPECS.cz[i];
+            const expAT = G * SPECS.at[i];
+            const expCZDirect = G * SPECS.cz_direct[i];
+
+            const pCZ = poissonProbability(expCZ, CZ);
+            const pAT = poissonProbability(expAT, AT);
+            const pCZDirect = poissonProbability(expCZDirect, CZDirect);
+
+            likelihoods[i] *= (pCZ * pAT * pCZDirect);
+        }
+    }
+
+    // 強チャンス目Bのポアソン分布計算（総ゲーム数 TotalG 参照）
+    if (TotalG > 0) {
+        for (let i = 0; i < 6; i++) {
+            if (likelihoods[i] === 0) continue;
+
+            const expChanceB = TotalG * SPECS.chance_b[i];
+            const pChanceB = poissonProbability(expChanceB, ChanceB);
+
+            likelihoods[i] *= pChanceB;
+        }
+    }
+
+    // 低確スイカからのSC当選率（二項分布）
+    if (WatermelonLowTotal > 0 && WatermelonLowTotal >= WatermelonSCLow) {
+        const failCount = WatermelonLowTotal - WatermelonSCLow;
+        for (let i = 0; i < 6; i++) {
+            if (likelihoods[i] === 0) continue;
+
+            const pHit = SPECS.sc_low[i];
+            const pFail = 1.0 - pHit;
+
+            likelihoods[i] *= Math.pow(pHit, WatermelonSCLow) * Math.pow(pFail, failCount);
+        }
+    }
+
+    // 通常時強チェリーからのCZ当選率（二項分布）
+    if (CherryLowTotal > 0 && CherryLowTotal >= CherryCZLow) {
+        const failCount = CherryLowTotal - CherryCZLow;
+        for (let i = 0; i < 6; i++) {
+            if (likelihoods[i] === 0) continue;
+
+            const pHit = SPECS.cherry_cz_low[i];
+            const pFail = 1.0 - pHit;
+
+            likelihoods[i] *= Math.pow(pHit, CherryCZLow) * Math.pow(pFail, failCount);
+        }
+    }
+
+    // 高確時強チェリーからのCZ当選率（二項分布）
+    if (CherryHighTotal > 0 && CherryHighTotal >= CherryCZHigh) {
+        const failCount = CherryHighTotal - CherryCZHigh;
+        for (let i = 0; i < 6; i++) {
+            if (likelihoods[i] === 0) continue;
+
+            const pHit = SPECS.cherry_cz_high[i];
+            const pFail = 1.0 - pHit;
+
+            likelihoods[i] *= Math.pow(pHit, CherryCZHigh) * Math.pow(pFail, failCount);
+        }
+    }
+
+    // CZ失敗時アイテム獲得率（二項分布）
+    if (CZFailTotal > 0 && CZFailTotal >= CZFailItem) {
+        const failCount = CZFailTotal - CZFailItem;
+        for (let i = 0; i < 6; i++) {
+            if (likelihoods[i] === 0) continue;
+
+            const pHit = SPECS.cz_fail_item_rate[i];
+            const pFail = 1.0 - pHit;
+
+            likelihoods[i] *= Math.pow(pHit, CZFailItem) * Math.pow(pFail, failCount);
+        }
+    }
+
+    // CZ失敗時「曠野の決闘」当選率（二項分布）
+    if (CZFailTotal > 0 && CZFailTotal >= CZFailDuel) {
+        const failCount = CZFailTotal - CZFailDuel;
+        for (let i = 0; i < 6; i++) {
+            if (likelihoods[i] === 0) continue;
+
+            const pHit = SPECS.cz_fail_duel_rate[i];
+            const pFail = 1.0 - pHit;
+
+            likelihoods[i] *= Math.pow(pHit, CZFailDuel) * Math.pow(pFail, failCount);
+        }
+    }
+
+    // 終了画面の尤度掛け合わせ
+    for (let i = 0; i < 6; i++) {
+        if (likelihoods[i] === 0) continue;
+
+        likelihoods[i] *= Math.pow(SCREEN_RATIOS.def[i], s_def);
+        likelihoods[i] *= Math.pow(SCREEN_RATIOS.odd[i], s_odd);
+        likelihoods[i] *= Math.pow(SCREEN_RATIOS.even[i], s_even);
+        likelihoods[i] *= Math.pow(SCREEN_RATIOS.high_l[i], s_high_l);
+        likelihoods[i] *= Math.pow(SCREEN_RATIOS.high_h[i], s_high_h);
+        likelihoods[i] *= Math.pow(SCREEN_RATIOS.child[i], s_child);
+    }
+
+    // エンディングの尤度掛け合わせ
+    for (let i = 0; i < 6; i++) {
+        if (likelihoods[i] === 0) continue;
+
+        likelihoods[i] *= Math.pow(ED_RATIOS.sinon_yuuki[i], ed_sinon_yuuki);
+        likelihoods[i] *= Math.pow(ED_RATIOS.kirito[i], ed_kirito);
+        likelihoods[i] *= Math.pow(ED_RATIOS.silica[i], ed_silica);
+        likelihoods[i] *= Math.pow(ED_RATIOS.lisbeth[i], ed_lisbeth);
+        likelihoods[i] *= Math.pow(ED_RATIOS.swordsman_leafa[i], ed_swordsman_leafa);
+        likelihoods[i] *= Math.pow(ED_RATIOS.shino_yui[i], ed_shino_yui);
+    }
+
+    const totalLikelihood = likelihoods.reduce((a, b) => a + b, 0);
+    const resultsContainer = document.getElementById('results');
+    resultsContainer.innerHTML = '';
+
+    if (totalLikelihood === 0) {
+        resultsContainer.innerHTML = '<p style="color: red; text-align: center;">矛盾したデータが入力されています</p>';
+        return;
+    }
+
+    likelihoods.forEach((l, index) => {
+        const percentage = ((l / totalLikelihood) * 100).toFixed(1);
+        const settingNum = index + 1;
+
+        const row = document.createElement('div');
+        row.className = `result-bar setting-${settingNum}`;
+        row.innerHTML = `
+            <div class="setting-label">設定${settingNum}</div>
+            <div class="bar-container">
+                <div class="bar" style="width: ${percentage}%;"></div>
+            </div>
+            <div class="percent">${percentage}%</div>
+        `;
+        resultsContainer.appendChild(row);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    calculateSetting();
+});
+</script>
+
+</body>
+</html>
