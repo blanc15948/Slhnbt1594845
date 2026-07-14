@@ -55,25 +55,24 @@
         <button class="btn-reset" onclick="resetForm()">↻ リセット</button>
     </div>
 
-    <!-- 1. 打ち始め時のデータ (前任者分) -->
     <div class="section" style="background: #25281e; border-color: #3b422a;">
         <div class="section-title" style="color: #aacc22; border-left-color: #aacc22;" onclick="toggleSection(this)">打ち始め時のデータ (前任者分)</div>
         <div class="section-content">
             <div class="input-group">
                 <label>打ち始め 通常G数</label>
-                <input type="number" id="start_normal_g" value="0" min="0" oninput="syncTotalData(); calculateSettings();">
+                <input type="number" id="start_normal_g" value="" min="0" placeholder="0" oninput="syncTotalData(); calculateSettings();">
             </div>
             <div class="input-group">
                 <label>打ち始め CZ回数</label>
-                <input type="number" id="start_cz_count" value="0" min="0" oninput="syncTotalData(); calculateSettings();">
+                <input type="number" id="start_cz_count" value="" min="0" placeholder="0" oninput="syncTotalData(); calculateSettings();">
             </div>
             <div class="input-group">
                 <label>打ち始め ボーナス回数</label>
-                <input type="number" id="start_bonus_count" value="0" min="0" oninput="syncTotalData(); calculateSettings();">
+                <input type="number" id="start_bonus_count" value="" min="0" placeholder="0" oninput="syncTotalData(); calculateSettings();">
             </div>
             <div class="input-group">
                 <label>打ち始め ST回数</label>
-                <input type="number" id="start_st_count" value="0" min="0" oninput="syncTotalData(); calculateSettings();">
+                <input type="number" id="start_st_count" value="" min="0" placeholder="0" oninput="syncTotalData(); calculateSettings();">
             </div>
             
             <div class="start-prediction-box">
@@ -83,19 +82,18 @@
         </div>
     </div>
 
-    <!-- 2. 現在の累計データ (データカウンター値) -->
     <div class="section">
         <div class="section-title" onclick="toggleSection(this)">現在の累計データ (データカウンター値)</div>
         <div class="section-content">
             <div class="input-group">
                 <label>累計 通常ゲーム数</label>
-                <input type="number" id="normal_g" value="0" min="0" oninput="syncTotalG(); calculateSettings();">
+                <input type="number" id="normal_g" value="" min="0" placeholder="0" oninput="syncTotalG(); calculateSettings();">
             </div>
             <div class="input-group">
                 <label>累計 CZ回数</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('cz_count', -1)">-</button>
-                    <input type="number" id="cz_count" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="cz_count" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('cz_count', 1)">+</button>
                 </div>
             </div>
@@ -103,7 +101,7 @@
                 <label>累計 初当たりボーナス回数</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('bonus_count', -1)">-</button>
-                    <input type="number" id="bonus_count" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="bonus_count" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('bonus_count', 1)">+</button>
                 </div>
             </div>
@@ -111,27 +109,26 @@
                 <label>累計 ST初当たり回数</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('st_count', -1)">-</button>
-                    <input type="number" id="st_count" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="st_count" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('st_count', 1)">+</button>
                 </div>
             </div>
             <hr style="border: 0; border-top: 1px solid #444; margin: 12px 0;">
             <div class="input-group">
                 <label>総マイスロG数 (通常+AT)</label>
-                <input type="number" id="total_g" value="0" min="0" oninput="calculateSettings()">
+                <input type="number" id="total_g" value="" min="0" placeholder="0" oninput="calculateSettings()">
             </div>
             <div class="input-group">
                 <label>下段ベル回数</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('bell_count', -1)">-</button>
-                    <input type="number" id="bell_count" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="bell_count" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('bell_count', 1)">+</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 3. 通常時 チャンス目発光（低確時） -->
     <div class="section" style="background: #233240; border-color: #334d66;">
         <div class="section-title" style="color: #40c4ff; border-left-color: #40c4ff;" onclick="toggleSection(this)">通常時 チャンス目発光（低確時）</div>
         <div class="section-content">
@@ -139,7 +136,7 @@
                 <label>チャンス目 引いた回数</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('ch_total', -1)">-</button>
-                    <input type="number" id="ch_total" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="ch_total" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('ch_total', 1)">+</button>
                 </div>
             </div>
@@ -147,14 +144,13 @@
                 <label>低確時 発光した回数</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('ch_flash', -1)">-</button>
-                    <input type="number" id="ch_flash" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="ch_flash" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('ch_flash', 1)">+</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 4. 規定周期での当選状況 -->
     <div class="section">
         <div class="section-title" onclick="toggleSection(this)">規定周期での当選状況</div>
         <div class="section-content">
@@ -162,7 +158,7 @@
                 <label>3周期目 到達回数</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('cycle3_total', -1)">-</button>
-                    <input type="number" id="cycle3_total" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="cycle3_total" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('cycle3_total', 1)">+</button>
                 </div>
             </div>
@@ -170,7 +166,7 @@
                 <label>3周期目 ボーナス当選回数</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('cycle3_win', -1)">-</button>
-                    <input type="number" id="cycle3_win" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="cycle3_win" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('cycle3_win', 1)">+</button>
                 </div>
             </div>
@@ -179,7 +175,7 @@
                 <label>4周期目 到達回数</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('cycle4_total', -1)">-</button>
-                    <input type="number" id="cycle4_total" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="cycle4_total" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('cycle4_total', 1)">+</button>
                 </div>
             </div>
@@ -187,14 +183,13 @@
                 <label>4周期目 ボーナス当選回数</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('cycle4_win', -1)">-</button>
-                    <input type="number" id="cycle4_win" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="cycle4_win" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('cycle4_win', 1)">+</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 5. おみくじアイテムカウント -->
     <div class="section" style="background: #3c2a3f; border-color: #5a3d5e;">
         <div class="section-title" style="color: #e0aaff; border-left-color: #e0aaff;" onclick="toggleSection(this)">おみくじアイテムカウント</div>
         <div class="section-content">
@@ -202,7 +197,7 @@
                 <label>ツラヌキ銃 <small>(設定4が出にくい)</small></label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('omi_tsuranuki', -1)">-</button>
-                    <input type="number" id="omi_tsuranuki" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="omi_tsuranuki" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('omi_tsuranuki', 1)">+</button>
                 </div>
             </div>
@@ -210,7 +205,7 @@
                 <label>無名の短銃 <small>(設定3が出にくい)</small></label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('omi_tanjyu', -1)">-</button>
-                    <input type="number" id="omi_tanjyu" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="omi_tanjyu" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('omi_tanjyu', 1)">+</button>
                 </div>
             </div>
@@ -218,7 +213,7 @@
                 <label>自決袋 <small>(設定1が出にくい)</small></label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('omi_jiketsu', -1)">-</button>
-                    <input type="number" id="omi_jiketsu" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="omi_jiketsu" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('omi_jiketsu', 1)">+</button>
                 </div>
             </div>
@@ -226,7 +221,7 @@
                 <label>来栖の刀 <small style="color: #ff7777; font-weight: bold;">(設定1否定)</small></label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('omi_katana', -1)">-</button>
-                    <input type="number" id="omi_katana" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="omi_katana" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('omi_katana', 1)">+</button>
                 </div>
             </div>
@@ -234,7 +229,7 @@
                 <label>無名のけん玉 <small style="color: #ff7777; font-weight: bold;">(設定2否定)</small></label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('omi_kendama', -1)">-</button>
-                    <input type="number" id="omi_kendama" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="omi_kendama" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('omi_kendama', 1)">+</button>
                 </div>
             </div>
@@ -242,7 +237,7 @@
                 <label>菖浦の弓 <small>(高設定示唆弱)</small></label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('omi_yumi', -1)">-</button>
-                    <input type="number" id="omi_yumi" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="omi_yumi" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('omi_yumi', 1)">+</button>
                 </div>
             </div>
@@ -250,7 +245,7 @@
                 <label>ミヤマカラスアゲハ <small>(高設定示唆強)</small></label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('omi_ageha', -1)">-</button>
-                    <input type="number" id="omi_ageha" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="omi_ageha" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('omi_ageha', 1)">+</button>
                 </div>
             </div>
@@ -258,7 +253,7 @@
                 <label>小吉 <small style="color: #69ffc3; font-weight: bold;">(設定2以上確定)</small></label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('omi_item_shokichi', -1)">-</button>
-                    <input type="number" id="omi_item_shokichi" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="omi_item_shokichi" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('omi_item_shokichi', 1)">+</button>
                 </div>
             </div>
@@ -266,7 +261,7 @@
                 <label>中吉 <small style="color: #69ffc3; font-weight: bold;">(設定4以上確定)</small></label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('omi_item_chukichi', -1)">-</button>
-                    <input type="number" id="omi_item_chukichi" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="omi_item_chukichi" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('omi_item_chukichi', 1)">+</button>
                 </div>
             </div>
@@ -274,14 +269,13 @@
                 <label>大吉 <small style="color: #69ffc3; font-weight: bold;">(設定6確定)</small></label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('omi_item_daikichi', -1)">-</button>
-                    <input type="number" id="omi_item_daikichi" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="omi_item_daikichi" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('omi_item_daikichi', 1)">+</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 6. おみくじ「小吉」の出現状況（周期発生分） -->
     <div class="section">
         <div class="section-title" onclick="toggleSection(this)">おみくじ「小吉」の出現状況（周期発生分）</div>
         <div class="section-content">
@@ -295,7 +289,6 @@
         </div>
     </div>
 
-    <!-- 7. BB中 技術介入ボイス (青7サンド) -->
     <div class="section">
         <div class="section-title" onclick="toggleSection(this)">BB中 技術介入ボイス (青7サンド)</div>
         <div class="section-content">
@@ -303,7 +296,7 @@
                 <label style="font-weight: bold; color: #ff8844;">ボイスなし（無音 / 設定5・6濃厚）</label>
                 <div class="counter-controls">
                     <button class="btn-count" style="background:#772200;" onclick="changeVal('v_none', -1)">-</button>
-                    <input type="number" id="v_none" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="v_none" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" style="background:#aa3300;" onclick="changeVal('v_none', 1)">+</button>
                 </div>
             </div>
@@ -311,7 +304,7 @@
                 <label>男性ボイス (奇数示唆)</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('v_male', -1)">-</button>
-                    <input type="number" id="v_male" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="v_male" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('v_male', 1)">+</button>
                 </div>
             </div>
@@ -319,7 +312,7 @@
                 <label>女性ボイス (偶数示唆)</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('v_female', -1)">-</button>
-                    <input type="number" id="v_female" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="v_female" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('v_female', 1)">+</button>
                 </div>
             </div>
@@ -327,7 +320,7 @@
                 <label>景之ボイス (高設定示唆・小)</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('v_kage_s', -1)">-</button>
-                    <input type="number" id="v_kage_s" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="v_kage_s" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('v_kage_s', 1)">+</button>
                 </div>
             </div>
@@ -335,7 +328,7 @@
                 <label>景之ボイス (高設定示唆・中)</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('v_kage_m', -1)">-</button>
-                    <input type="number" id="v_kage_m" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="v_kage_m" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('v_kage_m', 1)">+</button>
                 </div>
             </div>
@@ -343,14 +336,13 @@
                 <label>景之ボイス (高設定示唆・大)</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('v_kage_l', -1)">-</button>
-                    <input type="number" id="v_kage_l" value="0" min="0" oninput="calculateSettings()">
+                    <input type="number" id="v_kage_l" value="" min="0" placeholder="0" oninput="calculateSettings()">
                     <button class="btn-count" onclick="changeVal('v_kage_l', 1)">+</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 8. 確定演出・否定系のチェック -->
     <div class="section">
         <div class="section-title" onclick="toggleSection(this)">確定演出・否定系のチェック</div>
         <div class="section-content">
@@ -364,7 +356,6 @@
         </div>
     </div>
 
-    <!-- 結果表示枠 -->
     <div id="result">
         <div class="result-title">📊 設定推測結果 (確率配分)</div>
         <div id="result-bars"></div>
@@ -387,15 +378,16 @@ function changeVal(id, amount) {
     let val = parseInt(el.value) || 0;
     val += amount;
     if (val < 0) val = 0;
-    el.value = val;
+    el.value = val === 0 ? '' : val;
     calculateSettings(); 
 }
 
 function syncTotalG() {
     const normalG = parseInt(document.getElementById('normal_g').value) || 0;
     const totalGInput = document.getElementById('total_g');
-    if (parseInt(totalGInput.value) === 0 || parseInt(totalGInput.value) < normalG) {
-        totalGInput.value = normalG;
+    const totalGVal = parseInt(totalGInput.value) || 0;
+    if (totalGVal === 0 || totalGVal < normalG) {
+        totalGInput.value = normalG === 0 ? '' : normalG;
     }
 }
 
@@ -410,18 +402,23 @@ function syncTotalData() {
     const bonusEl = document.getElementById('bonus_count');
     const stEl = document.getElementById('st_count');
 
-    if (parseInt(normalGEl.value) === 0 || parseInt(normalGEl.value) < startNormalG) {
-        normalGEl.value = startNormalG;
+    const curNormalG = parseInt(normalGEl.value) || 0;
+    const curCz = parseInt(czEl.value) || 0;
+    const curBonus = parseInt(bonusEl.value) || 0;
+    const curSt = parseInt(stEl.value) || 0;
+
+    if (curNormalG === 0 || curNormalG < startNormalG) {
+        normalGEl.value = startNormalG === 0 ? '' : startNormalG;
         syncTotalG(); 
     }
-    if (parseInt(czEl.value) === 0 || parseInt(czEl.value) < startCz) {
-        czEl.value = startCz;
+    if (curCz === 0 || curCz < startCz) {
+        czEl.value = startCz === 0 ? '' : startCz;
     }
-    if (parseInt(bonusEl.value) === 0 || parseInt(bonusEl.value) < startBonus) {
-        bonusEl.value = startBonus;
+    if (curBonus === 0 || curBonus < startBonus) {
+        bonusEl.value = startBonus === 0 ? '' : startBonus;
     }
-    if (parseInt(stEl.value) === 0 || parseInt(stEl.value) < startSt) {
-        stEl.value = startSt;
+    if (curSt === 0 || curSt < startSt) {
+        stEl.value = startSt === 0 ? '' : startSt;
     }
 }
 
@@ -447,7 +444,7 @@ function loadData() {
             if (el.type === 'checkbox') {
                 el.checked = data[id];
             } else {
-                el.value = data[id];
+                el.value = data[id] !== undefined ? data[id] : '';
             }
         });
     } catch(e) {
@@ -459,7 +456,7 @@ function resetForm() {
     if (!confirm('入力データをすべてリセットしますか？')) return;
     localStorage.removeItem(STORAGE_KEY);
     const inputs = document.querySelectorAll('input[type="number"]');
-    inputs.forEach(input => input.value = 0);
+    inputs.forEach(input => input.value = '');
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
     checkboxes.forEach(cb => cb.checked = false);
     calculateSettings();
@@ -505,7 +502,6 @@ function calculateSettings() {
         if (startBonusCount > 0) { for (let s = 1; s <= 6; s++) startLogScore[s] += logPoissonPdf(startBonusCount, startNormalG, bonusProbs[s]); }
         if (startStCount > 0) { for (let s = 1; s <= 6; s++) startLogScore[s] += logPoissonPdf(startStCount, startNormalG, stProbs[s]); }
         
-        // 🆕 高設定への期待度補正（少し甘めの重み付けに変更）
         startLogScore[4] += 0.20;
         startLogScore[5] += 0.40;
         startLogScore[6] += 0.60;
