@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>カスタム小役カウンター</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            margin: 0;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            margin: 5px 0 15px 0;
+            color: #aaaaaa;
+        }
+
+        /* ゲーム数入力とリセットボタンの並び */
+        .top-controls {
+            width: 100%;
+            max-width: 450px;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .game-input-container {
+            flex: 1;
+            background-color: #222;
+            padding: 10px 12px;
+            border-radius: 8px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #444;
+        }
+
+        .game-label {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #00ffcc;
+        }
+
+        .game-input {
+            width: 100px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: right;
+            padding: 4px;
+            border-radius: 6px;
+            border: 1px solid #555;
+            background-color: #333;
+            color: #fff;
+        }
+        .game-input::placeholder { color: #555; }
+
+        .btn-reset {
+            padding: 0 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: #555555;
+            color: #ffffff;
+        }
+
+        /* カウンターのヘッダー（全体をしまうボタン） */
+        .section-header {
+            width: 100%;
+            max-width: 450px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #ddd;
+            margin: 0;
+        }
+
+        .btn-toggle-all {
+            background-color: #3a3a3a;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .counter-container {
+            width: 100%;
+            max-width: 450px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        /* 小役の各行 */
+        .counter-row {
+            display: flex;
+            align-items: center;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            position: relative;
+            border-left: 8px solid #71717a;
+            transition: all 0.2s ease;
+        }
+
+        /* 全体折りたたみ時の行のスタイル（細くする） */
+        .counter-container.is-collapsed .counter-row {
+            padding: 6px 10px;
+        }
+
+        .color-purple { border-left-color: #a855f7; }
+        .color-red { border-left-color: #ef4444; }
+        .color-green { border-left-color: #22c55e; }
+        .color-orange { border-left-color: #f97316; }
+        .color-blue { border-left-color: #3b82f6; }
+        .color-yellow { border-left-color: #eab308; }
+
+        .name-probability-zone {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        /* 折りたたみ時の名前と確率の横並び */
+        .counter-container.is-collapsed .name-probability-zone {
+            flex-direction: row;
+            gap: 15px;
+            flex: 1;
+            justify-content: flex-start;
+            padding-left: 10px;
+        }
+
+        .name-input {
+            width: 80px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 6px 4px;
+            border-radius: 4px;
+            border: 1px dashed #555;
+            background-color: #333;
+            color: #fff;
+        }
+        .name-input:focus { outline: none; border: 1px solid #00ffcc; background-color: #444; }
+
+        .probability-display {
+            font-size: 0.8rem;
+            color: #aaa;
+            font-weight: bold;
+            background-color: #1a1a1a;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* 折りたたみ時は確率を大きく強調 */
+        .counter-container.is-collapsed .probability-display {
+            font-size: 1.2rem;
+            color: #00ffcc;
+            background-color: transparent;
+            padding: 0;
+        }
+
+        .count-input {
+            flex: 1;
+            width: 100%;
+            font-size: 2.4rem;
+            font-weight: bold;
+            text-align: center;
+            font-family: monospace;
+            color: #00ffcc;
+            background: transparent;
+            border: none;
+            padding: 0;
+        }
+        .count-input:focus { outline: none; background-color: #333; border-radius: 4px; }
+        .count-input::placeholder { color: #444; }
+
+        /* 折りたたみ時に消す要素 */
+        .counter-container.is-collapsed .count-input,
+        .counter-container.is-collapsed .btn-action,
+        .counter-container.is-collapsed .btn-delete {
+            display: none !important;
+        }
+
+        .btn-action {
+            width: 65px;
+            height: 50px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #ffffff;
+            margin-left: 8px;
+        }
+        .btn-plus { background-color: #0288d1; }
+        .btn-plus:active { background-color: #03a9f4; }
+        .btn-minus { background-color: #c62828; font-size: 1.8rem; }
+        .btn-minus:active { background-color: #e53935; }
+
+        .btn-delete {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #555;
+            color: #fff;
+            border: none;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+
+        .add-container {
+            width: 100%;
+            max-width: 450px;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        /* 折りたたみ時は追加ボタンも隠す */
+        .is-collapsed + .add-container {
+            display: none;
+        }
+
+        .btn-add {
+            width: 100%;
+            padding: 12px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .memo-container {
+            width: 100%;
+            max-width: 450px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            box-sizing: border-box;
+            /* しまった時にメモ画面が広がるように高さを調整 */
+            flex: 1;
+        }
+        .memo-label {
+            font-size: 0.9rem;
+            color: #aaa;
+            font-weight: bold;
+            padding-left: 4px;
+        }
+        .memo-textarea {
+            width: 100%;
+            height: 150px;
+            background-color: #222;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 10px;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+            resize: vertical;
+        }
+        .memo-textarea:focus { outline: none; border-color: #00ffcc; }
+    </style>
+</head>
+<body>
+
+    <h1>パチスロ小役カウンター</h1>
+
+    <!-- 上部コントロール（ゲーム数＆リセット） -->
+    <div class="top-controls">
+        <div class="game-input-container">
+            <span class="game-label">総G数</span>
+            <input type="number" id="totalGames" class="game-input" placeholder="0" oninput="updateGames(this.value)">
+        </div>
+        <button class="btn-reset" onclick="resetAll()">全リセット</button>
+    </div>
+
+    <!-- カウンターのヘッダー -->
+    <div class="section-header">
+        <h2 class="section-title">カウンター</h2>
+        <button class="btn-toggle-all" id="btnToggleAll" onclick="toggleAll()">▲ しまう</button>
+    </div>
+
+    <!-- カウンターエリア -->
+    <div class="counter-container" id="counterContainer"></div>
+
+    <div class="add-container" id="addContainer">
+        <button class="btn-add" onclick="addNewCounter()">＋ 新しい小役を追加</button>
+    </div>
+
+    <!-- メモエリア -->
+    <div class="memo-container">
+        <span class="memo-label">実戦メモ</span>
+        <textarea id="memoArea" class="memo-textarea" placeholder="設定示唆や台の挙動などをメモ..." oninput="updateMemo(this.value)"></textarea>
+    </div>
+
+    <script>
+        const autoColors = ['purple', 'red', 'green', 'orange', 'blue', 'yellow'];
+
+        const defaultItems = [
+            { id: "item_1", name: "ぶどう", count: 0, color: "purple" },
+            { id: "item_2", name: "チェリー", count: 0, color: "red" },
+            { id: "item_3", name: "スイカ", count: 0, color: "green" },
+            { id: "item_4", name: "チャンス", count: 0, color: "orange" }
+        ];
+
+        let counterItems = [];
+        let totalGames = 0;
+        let isAllCollapsed = false; // 全体折りたたみ状態を管理
+
+        function init() {
+            const savedData = localStorage.getItem('kachikachi_v4_data');
+            const savedGames = localStorage.getItem('kachikachi_v4_games');
+            const savedMemo = localStorage.getItem('kachikachi_v4_memo');
+            const savedCollapsed = localStorage.getItem('kachikachi_v4_collapsed');
+            
+            if (savedData) {
+                counterItems = JSON.parse(savedData);
+            } else {
+                counterItems = [...defaultItems];
+            }
+
+            if (savedGames) totalGames = parseInt(savedGames, 10) || 0;
+            if (savedCollapsed) isAllCollapsed = (savedCollapsed === 'true');
+
+            document.getElementById('totalGames').value = totalGames === 0 ? '' : totalGames;
+            document.getElementById('memoArea').value = savedMemo || '';
+            
+            applyCollapsedState();
+            renderChannels();
+        }
+
+        // カウンター全体をしまう／ひらく
+        function toggleAll() {
+            isAllCollapsed = !isAllCollapsed;
+            localStorage.setItem('kachikachi_v4_collapsed', isAllCollapsed);
+            applyCollapsedState();
+        }
+
+        // 折りたたみ状態の見た目を適用する
+        function applyCollapsedState() {
+            const container = document.getElementById('counterContainer');
+            const btn = document.getElementById('btnToggleAll');
+            const addBtn = document.getElementById('addContainer');
+
+            if (isAllCollapsed) {
+                container.classList.add('is-collapsed');
+                btn.innerText = '▼ ひらく';
+                addBtn.style.display = 'none'; // 追加ボタンも邪魔なので隠す
+            } else {
+                container.classList.remove('is-collapsed');
+                btn.innerText = '▲ しまう';
+                addBtn.style.display = 'flex';
+            }
+        }
+
+        function updateGames(value) {
+            totalGames = parseInt(value, 10) || 0;
+            if (totalGames < 0) totalGames = 0;
+            localStorage.setItem('kachikachi_v4_games', totalGames);
+            renderChannels(); 
+        }
+
+        function updateCount(id, value) {
+            const item = counterItems.find(i => i.id === id);
+            if (item) {
+                let newCount = parseInt(value, 10) || 0;
+                if (newCount < 0) newCount = 0;
+                item.count = newCount;
+                saveData();
+                updateProbabilityOnly();
+            }
+        }
+
+        function updateProbabilityOnly() {
+            counterItems.forEach((item) => {
+                let probabilityText = "-.-";
+                if (totalGames > 0 && item.count > 0) {
+                    const prob = totalGames / item.count;
+                    probabilityText = `1 / ${prob.toFixed(2)}`;
+                }
+                const probEl = document.getElementById(`prob-${item.id}`);
+                if (probEl) probEl.innerText = probabilityText;
+            });
+        }
+
+        function renderChannels() {
+            const container = document.getElementById('counterContainer');
+            container.innerHTML = ''; 
+
+            counterItems.forEach((item) => {
+                let probabilityText = "-.-";
+                if (totalGames > 0 && item.count > 0) {
+                    const prob = totalGames / item.count;
+                    probabilityText = `1 / ${prob.toFixed(2)}`;
+                }
+
+                const displayValue = item.count === 0 ? '' : item.count;
+
+                const row = document.createElement('div');
+                row.className = `counter-row color-${item.color || 'gray'}`;
+                
+                row.innerHTML = `
+                    <button class="btn-delete" onclick="deleteItem('${item.id}')">✕</button>
+                    <div class="name-probability-zone">
+                        <input type="text" class="name-input" value="${item.name}" onchange="updateName('${item.id}', this.value)">
+                        <span class="probability-display" id="prob-${item.id}">${probabilityText}</span>
+                    </div>
+                    <input type="number" class="count-input" value="${displayValue}" placeholder="0" oninput="updateCount('${item.id}', this.value)">
+                    <button class="btn-action btn-minus" onclick="changeCount('${item.id}', -1)">−</button>
+                    <button class="btn-action btn-plus" onclick="changeCount('${item.id}', 1)">＋</button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function changeCount(id, val) {
+            const item = counterItems.find(i => i.id === id);
+            if (item) {
+                item.count += val;
+                if (item.count < 0) item.count = 0; 
+                saveData();
+                renderChannels(); 
+            }
+        }
+
+        function updateName(id, newName) {
+            const item = counterItems.find(i => i.id === id);
+            if (item) {
+                item.name = newName;
+                saveData();
+            }
+        }
+
+        function updateMemo(text) {
+            localStorage.setItem('kachikachi_v4_memo', text);
+        }
+
+        function addNewCounter() {
+            const newId = 'item_' + Date.now();
+            const colorIndex = counterItems.length % autoColors.length;
+            const assignedColor = autoColors[autoColors.length - 1 - colorIndex];
+
+            counterItems.push({
+                id: newId,
+                name: '新規役',
+                count: 0,
+                color: assignedColor
+            });
+            saveData();
+            renderChannels();
+        }
+
+        function deleteItem(id) {
+            if (confirm("この項目を削除してもよろしいですか？")) {
+                counterItems = counterItems.filter(i => i.id !== id);
+                saveData();
+                renderChannels();
+            }
+        }
+
+        function resetAll() {
+            if (confirm("すべてのカウント、ゲーム数、メモをリセットしますか？")) {
+                counterItems.forEach(item => item.count = 0);
+                totalGames = 0;
+                document.getElementById('totalGames').value = '';
+                document.getElementById('memoArea').value = '';
+                localStorage.setItem('kachikachi_v4_games', 0);
+                localStorage.setItem('kachikachi_v4_memo', '');
+                saveData();
+                renderChannels();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('kachikachi_v4_data', JSON.stringify(counterItems));
+        }
+
+        init();
+    </script>
+</body>
+</html>
