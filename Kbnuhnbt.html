@@ -63,7 +63,7 @@
         <div class="section-title" style="color: #aacc22; border-left-color: #aacc22;" onclick="toggleSection(this)">打ち始め時のデータ (前任者分)</div>
         <div class="section-content">
             <div class="input-group">
-                <label>打ち始め データランプG数</label>
+                <label>打ち始め 通常G数</br>(データランプ)</label>
                 <input type="number" id="start_normal_g" value="" placeholder="0" min="0" oninput="syncTotalData(); calculateSettings();">
             </div>
             <div class="input-group">
@@ -98,7 +98,7 @@
         <div class="section-title" onclick="toggleSection(this)">現在の累計データ (データカウンター値)</div>
         <div class="section-content">
             <div class="input-group">
-                <label>累計 データランプG数</label>
+                <label>累計 通常G数</br>(データランプ)</label>
                 <input type="number" id="normal_g" value="" placeholder="0" min="0" oninput="syncTotalG(); calculateSettings();">
             </div>
             <div class="input-group">
