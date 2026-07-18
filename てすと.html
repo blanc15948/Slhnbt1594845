@@ -4,11 +4,524 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>カスタム小役カウンター</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            margin: 0;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            margin: 5px 0 15px 0;
+            color: #aaaaaa;
+        }
+
+        .top-controls {
+            width: 100%;
+            max-width: 450px;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .game-input-container {
+            flex: 1;
+            background-color: #222;
+            padding: 10px 12px;
+            border-radius: 8px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #444;
+        }
+
+        .game-label {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #00ffcc;
+        }
+
+        .game-input {
+            width: 100px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: right;
+            padding: 4px;
+            border-radius: 6px;
+            border: 1px solid #555;
+            background-color: #333;
+            color: #fff;
+        }
+        .game-input::placeholder { color: #555; }
+
+        .btn-reset {
+            padding: 0 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: #555555;
+            color: #ffffff;
+        }
+
+        .section-header {
+            width: 100%;
+            max-width: 450px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #ddd;
+            margin: 0;
+        }
+
+        .btn-toggle-all {
+            background-color: #3a3a3a;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .counter-container {
+            width: 100%;
+            max-width: 450px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .counter-row {
+            display: flex;
+            align-items: center;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            position: relative;
+            border-left: 8px solid #71717a;
+            transition: all 0.2s ease;
+        }
+
+        .counter-container.is-collapsed .counter-row {
+            padding: 6px 10px;
+        }
+
+        .color-purple { border-left-color: #a855f7; }
+        .color-red { border-left-color: #ef4444; }
+        .color-green { border-left-color: #22c55e; }
+        .color-orange { border-left-color: #f97316; }
+        .color-blue { border-left-color: #3b82f6; }
+        .color-yellow { border-left-color: #eab308; }
+
+        .name-probability-zone {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .counter-container.is-collapsed .name-probability-zone {
+            flex-direction: row;
+            gap: 15px;
+            flex: 1;
+            justify-content: flex-start;
+            padding-left: 10px;
+        }
+
+        .name-input {
+            width: 80px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 6px 4px;
+            border-radius: 4px;
+            border: 1px dashed #555;
+            background-color: #333;
+            color: #fff;
+        }
+        .name-input:focus { outline: none; border: 1px solid #00ffcc; background-color: #444; }
+
+        .probability-display {
+            font-size: 0.8rem;
+            color: #aaa;
+            font-weight: bold;
+            background-color: #1a1a1a;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .counter-container.is-collapsed .probability-display {
+            font-size: 1.2rem;
+            color: #00ffcc;
+            background-color: transparent;
+            padding: 0;
+        }
+
+        .count-input {
+            flex: 1;
+            width: 100%;
+            font-size: 2.4rem;
+            font-weight: bold;
+            text-align: center;
+            font-family: monospace;
+            color: #00ffcc;
+            background: transparent;
+            border: none;
+            padding: 0;
+        }
+        .count-input:focus { outline: none; background-color: #333; border-radius: 4px; }
+        .count-input::placeholder { color: #444; }
+
+        .counter-container.is-collapsed .count-input,
+        .counter-container.is-collapsed .btn-action,
+        .counter-container.is-collapsed .btn-delete {
+            display: none !important;
+        }
+
+        .btn-action {
+            width: 65px;
+            height: 50px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #ffffff;
+            margin-left: 8px;
+        }
+        .btn-plus { background-color: #0288d1; }
+        .btn-plus:active { background-color: #03a9f4; }
+        .btn-minus { background-color: #c62828; font-size: 1.8rem; }
+        .btn-minus:active { background-color: #e53935; }
+
+        .btn-delete {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #555;
+            color: #fff;
+            border: none;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+
+        .add-container {
+            width: 100%;
+            max-width: 450px;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .is-collapsed + .add-container {
+            display: none;
+        }
+
+        .btn-add {
+            width: 100%;
+            padding: 12px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .memo-container {
+            width: 100%;
+            max-width: 450px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            box-sizing: border-box;
+            flex: 1;
+        }
+        .memo-label {
+            font-size: 0.9rem;
+            color: #aaa;
+            font-weight: bold;
+            padding-left: 4px;
+        }
+        .memo-textarea {
+            width: 100%;
+            height: 150px;
+            background-color: #222;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 10px;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+            resize: vertical;
+        }
+        .memo-textarea:focus { outline: none; border-color: #00ffcc; }
+    </style>
 </head>
 <body>
-    <!-- 修正版：暗号化（難読化）メインコンテンツ -->
-    <script type="text/javascript">
-        document.write(decodeURIComponent(escape(window.atob('PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImphIj4KPGhlYWQ+CiAgICA8bWV0YSBjaGFyc2V0PSJVVEYtOCI+CiAgICA8bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLCBpbml0aWFsLXNjYWxlPTEuMCwgbWF4aW11bS1zY2FsZT0xLjAsIHVzZXItc2NhbGFibGU9bm8iPgogICAgPHRpdGxlPuOCqcustomls+W9ueOCq+OCpuODs+OCvzwvdGl0bGU+CiAgICA8c3R5bGU++KyBvbmNsaWNrPSJyZXNldEFsbCgpIj7lhajjg6compositeOOD villainsPC9idXR0b24+CiAgICA8L2Rpdj4KCiAgICA8IS0tIOOCq+OCpuODs+ODvOOBruODmOODg+ODgOStatic0IC0tPgogICAgPGRpdiBjbGFzcz0ic2VjdGlvbi1oZWFkZXIiPgogICAgICAgIDxoMiBjbGFzcz0ic2VjdGlvbi10aXRsZSBpZGVudCI+44Kr44Km44PchecksPC9oMj4KICAgICAgICA8YnV0dG9uIGNsYXNzPSJidG4tdG9nZ2xlLWFsbCIgaWQ9ImJ0blRvZ2dsZUFsbCIgb25jbGljaz0idG9nZ2xlQWxsKCkiPuKWkiDjgZfjgb7jgbs8L2J1dHRvbj4KICAgID8vZGl2PgoKICAgIDwhLS0g44Kr44Km44Pchecks44Ko44Oq44KiIC0tPgogICAgPGRpdiBjbGFzcz0iY291bnRlci1jb250YWluZXIiIGlkPSJjb3VudGVyQ29udGFpbmVyIj48L2Rpdj4KCiAgICA8ZGl2IGNsYXNzPSJhZGQtY29udGFpbmVyIiBpZD0iYWRkQ29udGFpbmVyIj4KICAgICAgICA8YnV0dG9uIGNsYXNzPSJidG4tYWRkIiBvbmNsaWNrPSJhZGROZXdDb3VudGVyKCkiPu MarieaWsOimj+W9uOCkuuW9mS8vPC9idXR0b24+CiAgICA8L2Rpdj4KCiAgICA8IS0tIOODoeODouOCqOODquOCoiAtLT4KICAgIDxkaXYgY2xhc3M9Im1lbW8tY29udGFpbmVyIj4KICAgICAgICA8c3BhbiBjbGFzcz0ibWVtby1sYWJlbCI+5a6f5oim44Oh44OiPC9zcGFuPgogICAgICAgIDx0ZXh0YXJlYSBpZD0ibWVtb0FyZWEiIGNsYXNzPSJtZW1vLXRleHRhcmVhIiBwbGFjZWhvbGRlcj0i6Kit5a6a56b65pys44KE5YjD44Gu5oyZ5YuV44Gq44Gp44KS44Oh44OiLi4uIiBvbmlucHV0PSJ1cGRhdGVNZW1vKHRoaXMudmFsdWUpIj48L3RleHRhcmVhPgogICAgPC9kaXY+CgogICAgPHNjcmlwdD4KICAgICAgICBjb25zdCBhdXRvQ29sb3JzID0gWydwdXJwbGUnLCAncmVkJywgJ2dyZWVuJywgJ29yYW5nZScsICdibHVlJywgJ3llbGxvdyddOwogICAgICAgIGNvbnN0IGRlZmF1bHRJdGVtcyA9IFsKICAgICAgICAgICAgeyBpZDogIml0ZW1fMSIsIG5hbWU6ICLjgbXjganjgY8iLCBjb3VudDogMCwgY29sb3I6ICJwdXJwbGUiIH0sCiAgICAgICAgICAgIHsgaWQ6ICJpdGVtXzIiLCBuYW1lOiAi44OB44Kn44Oq44O8IiwgY291bnQ6IDAsIGNvbG9yOiAicmVkIiB9LAogICAgICAgICAgICB7IGlkOiAiaXRlbV8zIiwgbmFtZT0i44K544Kk44KrIiwgY291bnQ6IDAsIGNvbG9yOiAiZ3JlZW4iIH0sCiAgICAgICAgICAgIHsgaWQ6ICJpdGVtXzQiLCBuYW1lOiAi44OB44Oj44Oz44K5IiwgY291bnQ6IDAsIGNvbG9yOiAib3JhbmdlIiB9CiAgICAgICAgXTsKICAgICAgICBsZXQgY291bnRlckl0ZW1zID0gW107CiAgICAgICAgbGV0IHRvdGFsR2FtZXMgPSAwOwogICAgICAgIGxldCBpc0FsbENvbGxhcHNlZCA9IGZhbHNlOwogICAgICAgIGZ1bmN0aW9uIGluaXQoKSB7CiAgICAgICAgICAgIGNvbnN0IHNhdmVkRGF0YSA9IGxvY2FsU3RvcmFnZS5nZXRJdGVtKCdrYWNoaWthY2hpX3Y0X2RhdGEnKTsKICAgICAgICAgICAgY29uc3Qgc2F2ZWRHYW1lcyA9IGxvY2FsU3RvcmFnZS5nZXRJdGVtKCdrYWNoaWthY2hpX3Y0X2dhbWVzJyk7CiAgICAgICAgICAgIGNvbnN0IHNhdmVkTWVtbyA9IGxvY2FsU3RvcmFnZS5nZXRJdGVtKCdrYWNoaWthY2hpX3Y0X21lbW8nKTsKICAgICAgICAgICAgY29uc3Qgc2F2ZWRDb2xsYXBzZWQgPSBsb2NhbFN0b3JhZ2UuZ2V0SXRlbSgna2FjaGlrYWNoaV92NF9jb2xsYXBzZWQnKTsKICAgICAgICAgICAgaWYgKHNhdmVkRGF0YSkgewogICAgICAgICAgICAgICAgY291bnRlckl0ZW1zID0gSlNPTi5wYXJzZShzYXZlZERhdGEpOwogICAgICAgICAgICB9IGVsc2UgewogICAgICAgICAgICAgICAgY291bnRlckl0ZW1zID0gWy4uLmRlZmF1bHRJdGVtc107CiAgICAgICAgICAgIH0KICAgICAgICAgICAgaWYgKHNhdmVkR2FtZXMpIHRvdGFsR2FtZXMgPSBwYXJzZUludChzYXZlZEdhbWVzLCAxMCkgfHwgMDsKICAgICAgICAgICAgaWYgKHNhdmVkQ29sbGFwc2VkKSBpc0FsbENvbGxhcHNlZCA9IChzYXZlZENvbGxhcHNlZCA9PT0gJ3RydWUnKTsKICAgICAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3RvdGFsR2FtZXMnKS52YWx1ZSA9IHRvdGFsR2FtZXMgPT09IDAgPyAnJyA6IHRvdGFsR2FtZXM7CiAgICAgICAgICAgIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdtZW1vQXJlYScpLnZhbHVlID0gc2F2ZWRNZW1vIHx8ICcnOwogICAgICAgICAgICBhcHBseUNvbGxhcHNlZFN0YXRlKCk7CiAgICAgICAgICAgIHJlbmRlckNoYW5uZWxzKCk7CiAgICAgICAgfQogICAgICAgIGZ1bmN0aW9uIHRvZ2dsZUFsbCgpIHsKICAgICAgICAgICAgaXNBbGxDb2xsYXBzZWQgPSAhaXNBbGxDb2xsYXBzZWQ7CiAgICAgICAgICAgIGxvY2FsU3RvcmFnZS5zZXRJdGVtKCdrYWNoaWthY2hpX3Y0X2NvbGxhcHNlZCcsIGlzQWxsQ29sbGFwc2VkKTsKICAgICAgICAgICAgYXBwbHlDb2xsYXBzZWRTdGF0ZSgpOwogICAgICAgIH0KICAgICAgICBmdW5jdGlvbiBhcHBseUNvbGxhcHNlZFN0YXRlKCkgewogICAgICAgICAgICBjb25zdCBjb250YWluZXIgPSBkb2YgdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2NvdW50ZXJDb250YWluZXInKTsKICAgICAgICAgICAgY29uc3QgYnRuID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2J0blRvZ2dsZUFsbCcpOwogICAgICAgICAgICBjb25zdCBhZGRCdG4gPSBkb2YgdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2FkZENvbnRhaW5lcicpOwogICAgICAgICAgICBpZiAoaXNBbGxDb2xsYXBzZWQpIHsKICAgICAgICAgICAgICAgIGNvbnRhaW5lci5jbGFzc0xpc3QuYWRkKCdpcy1jb2xsYXBzZWQnKTsKICAgICAgICAgICAgICAgIGJ0bi5pbm5lclRleHQgPSAn4pKyIOOBValidjgY8nOwogICAgICAgICAgICAgICAgYWRkQnRuLnN0eWxlLmRpc3BsYXkgPSAnbm9uZSc7CiAgICAgICAgICAgIH0gZWxzZSB7CiAgICAgICAgICAgICAgICBjb250YWluZXIuY2xhc3NMaXN0LnJlbW92ZSgnaXMtY29sbGFwc2VkJyk7CiAgICAgICAgICAgICAgICBidG4uaW5uZXJUZXh0ID0gJ+KWkiDjgZfjgb7jgbsnOwogICAgICAgICAgICAgICAgYWRkQnRuLnN0eWxlLmRpc3BsYXkgPSAnZmxleCc7CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgZm9uY3Rpb24gdXBkYXRlR2FtZXModmFsdWUpIHsKICAgICAgICAgICAgdG90YWxHYW1lcyA9IHBhcnNlSW50KHZhbHVlLCAxMCkgfHwgMDsKICAgICAgICAgICAgaWYgKHRvdGFsR2FtZXMgPCAwKSB0b3RhbEdhbWVzID0gMDsKICAgICAgICAgICAgbG9jYWxTdG9yYWdlLnNldEl0ZW0oJ2thY2hpa2FjaGlfdjRfZ2FtZXMnLCB0b3RhbEdhbWVzKTsKICAgICAgICAgICAgcmVuZGVyQ2hhbm5lbHMoKTsKICAgICAgICB9CiAgICAgICAgZm9uY3Rpb24gdXBkYXRlQ291bnQoaWQsIHZhbHVlKSB7CiAgICAgICAgICAgIGNvbnN0IGl0ZW0gPSBjb3VudGVySXRlbXMuZmluZChpID0+IGkubidkID09PSBpZCk7CiAgICAgICAgICAgIGlmIChpdGVtKSB7CiAgICAgICAgICAgICAgICBsZXQgbmV3Q291bnQgPSBwYXJzZUludCh2YWx1ZSwgMTApIHx8IDA7CiAgICAgICAgICAgICAgICBpZiAobmV3Q291bnQgPCAwKSBuZXdDb3VudCA9IDA7CiAgICAgICAgICAgICAgICBpdGVtLmNvdW50ID0gbmV3Q291bnQ7CiAgICAgICAgICAgICAgICBzYXZlRGF0YSgpOwogICAgICAgICAgICAgICAgdXBkYXRlUHJvYmFiaWxpdHlPbmx5KCk7CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgZm9uY3Rpb24gdXBkYXRlUHJvYmFiaWxpdHlPbmx5KCkgewogICAgICAgICAgICBjb3VudGVySXRlbXMuZm9yRWFjaCgoaXRlbSkgPT4gewogICAgICAgICAgICAgICAgbGV0IHByb2JhYmlsaXR5VGV4dCA9ICItLi0iOwogICAgICAgICAgICAgICAgaWYgKHRvdGFsR2FtZXMgPiAwICYmIGl0ZW0uY291bnQgPiAwKSB7CiAgICAgICAgICAgICAgICAgICAgY29uc3QgcHJvYiA9IHRvdGFsR2FtZXMgLyBpdGVtLmNvdW50OwogICAgICAgICAgICAgICAgICAgIHByb2JhYmlsaXR5VGV4dCA9IGAxIC8gJHtwcm9iLnRvRml4ZWQoMil9YDsKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIGNvbnN0IHByb2JFbCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKGBwcm9iLSR7aXRlbS5pZH1gKTsKICAgICAgICAgICAgICAgIGlmIChwcm9iRWwpIHByb2JFbC5pbm5lclRleHQgPSBwcm9iYWJpbGl0eVRleHQ7CiAgICAgICAgICAgIH0pOwogICAgICAgIH0KICAgICAgICBmdW5jdGlvbiByZW5kZXJDaGFubmVscygpIHsKICAgICAgICAgICAgY29uc3QgY29udGFpbmVyID0gZG9jdW1lbnQuZ2V0ZWxlbWVudEJ5SWQoJ2NvdW50ZXJDb250YWluZXInKTsKICAgICAgICAgICAgY29udGFpbmVyLmlubmVySFRNTCA9ICcnOwogICAgICAgICAgICBjb3VudGVySXRlbXMuZm9yRWFjaCgoaXRlbSkgPT4gewogICAgICAgICAgICAgICAgbGV0IHByb2JhYmlsaXR5VGV4dCA9ICItLi0iOwogICAgICAgICAgICAgICAgaWYgKHRvdGFsR2FtZXMgPiAwICYmIGl0ZW0uY291bnQgPiAwKSB7CiAgICAgICAgICAgICAgICAgICAgY29uc3QgcHJvYiA9IHRvdGFsR2FtZXMgLyBpdGVtLmNvdW50OwogICAgICAgICAgICAgICAgICAgIHByb2JhYmlsaXR5VGV4dCA9IGAxIC8gJHtwcm9iLnRvRml4ZWQoMil9YDsKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIGNvbnN0IGRpc3BsYXlWYWx1ZSA9IGl0ZW0uY291bnQgPT09IDAgPyAnJyA6IGl0ZW0uY291bnQ7CiAgICAgICAgICAgICAgICBjb25zdCByb3cgPSBkb2N1bW5lbnQuY3JlYXRlRWxlbWVudCgnZGl2Jyk7CiAgICAgICAgICAgICAgICByb3cuY2xhc3NOYW1lID0gYGNvdW50ZXItcm93IGNvbG9yLSR7aXRlbS5jb2xvciB8fCAnZ3JheSd9YDsKICAgICAgICAgICAgICAgIHJvdy5pbm5lckhUTUwgPSBgCiAgICAgICAgICAgICAgICAgICAgPGJ1dHRvbiBjbGFzcz0iYnRuLWRlbGV0ZSIgb25jbGljaz0iZGVsZXRlSXRlbSgnJHtpdGVtLmlkfScpIj7jZzwvYnV0dG9uPgogICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9Im5hbWUtcHJvYmFiaWxpdHkten9uZSI+CiAgICAgICAgICAgICAgICAgICAgICAgIDxpbnB1dCB0eXBlPSJ0ZXh0IiBjbGFzcz0ibmFtZS1pbnB1dCIgdmFsdWU9IiR7aXRlbS5uYW1lfSIgb25jaGFuZ2U9InVwZGF0ZU5hbWUoJyR7aXRlbS5pZH0nLCB0aGlzLnZhbHVlKSI+CiAgICAgICAgICAgICAgICAgICAgICAgIDxzcGFuIGNsYXNzPSJwcm9iYWJpbGl0eS1kaXNwbGF5IiBpZD0icHJvYi0ke2l0ZW0uaWR9Ij4ke3Byb2JhYmlsaXR5VGV4dH08L3NwYW4+CiAgICAgICAg------------00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005047823543290543285904328590432850943285904328590432CgogICAgICAgICAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgICAgICAgICAgIDxpbnB1dCB0eXBlPSJudW1iZXIiIGNsYXNzPSJjb3VudC1pbnB1dCIgdmFsdWU9IiR7ZGlzcGxheVZhbHVlfSIgcGxhY2Vob2xkZXI9IjAiIG9uaW5wdXQ9InVwZGF0ZUNvdW50KCcke2l0ZW0uaWR9JywgdGhpcy52YWx1ZSkiPgogICAgICAgICAgICAgICAgICAgIDxidXR0b24gY2xhc3M9ImJ0bi1hY3Rpb24gYnRuLW1pbnVzIiBvbmNsaWNrPSJjaGFuZ2VDb3VudCooJyR7aXRlbS5pZH0nLCAtMSkiPuODuzwvYnV0dG9uPgogICAgICAgICAgICAgICAgICAgIDxidXR0b24gY2xhc3M9ImJ0bi1hY3Rpb24gYnRuLXBsdXMiIG9uY2xpc2s9ImNoYW5nZUNvdW50KCcke2l0ZW0uaWR9JywgMSkiPuOBrzwvYnV0dG9uPgogICAgICAgICAgICAgICAgYDsKICAgICAgICAgICAgICAgIGNvbnRhaW5lci5hcHBlbmRDaGlsZChyb3cpOwogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICAgICAgZm9uY3Rpb24gY2hhbmdlQ291bnQoaWQsIHZhbCkgewogICAgICAgICAgICBjb25zdCBpdGVtID0gY291bnRlckl0ZW1zLmZpbmQoaSA9PiBpLmlkID09PSBpZCk7CiAgICAgICAgICAgIGlmIChpdGVtKSB7CiAgICAgICAgICAgICAgICBpdGVtLmNvdW50ICs9IHZhbDsKICAgICAgICAgICAgICAgIGlmIChpdGVtLmNvdW50IDwgMCkgaXRlbS5jb3VudCA9IDA7CiAgICAgICAgICAgICAgICBzYXZlRGF0YSgpOwogICAgICAgICAgICAgICAgcmVuZGVyQ2hhbm5lbHMoKTsKICAgICAgICAgICAgfQogICAgICAgIH0KICAgICAgICBmdW5jdGlvbiB1cGRhdGVOYW1lKGlkLCBuZXdOYW1lKSB7CiAgICAgICAgICAgIGNvbnN0IGl0ZW0gPSBjb3VudGVySXRlbXMuZmluZChpID0+IGkubidkID09PSBpZCk7CiAgICAgICAgICAgIGlmIChpdGVtKSB7CiAgICAgICAgICAgICAgICBpdGVtLm5hbWUgPSBuZXdOYW1lOwogICAgICAgICAgICAgICAgc2F2ZURhdGEoKTsKICAgICAgICAgICAgfQogICAgICAgIH0KICAgICAgICBmdW5jdGlvbiB1cGRhdGVNZW1vKHRleHQpIHsKICAgICAgICAgICAgbG9jYWxTdG9yYWdlLnNldEl0ZW0oJ2thY2hpa2FjaGlfdjRfbWVtbycsIHRleHQpOwogICAgICAgIH0KICAgICAgICBmdW5jdGlvbiBhZGROZXdDb3VudGVyKCkgewogICAgICAgICAgICBjb25zdCBuZXdJZCA9ICdpdGVtXycgKyBEYXRlLm5vdygpOwogICAgICAgICAgICBjb25zdCBjb250ZXh0ID0gY291bnRlckl0ZW1zLmxlbmd0aCAlIGF1dG9Db2xvcnMubGVuZ3RoOwogICAgICAgICAgICBjb25zdCBhc3NpZ25lZENvbG9yID0gYXV0bENvbG9yc1thdXRvQ29sb3JzLmxlbmd0aCAtIDEgLSBjb250ZXh0XTsKICAgICAgICAgICAgY291bnRlckl0ZW1zLnB1c2goewogICAgICAgICAgICAgICAgaWQ6IG5ld0lkLAogICAgICAgICAgICAgICAgbmFtZTogJ+aWsOimj+W9dScsCiAgICAgICAgICAgICAgICBjb3VudDogMCwKICAgICAgICAgICAgICAgIGNvbG9yOiBhc3NpZ25lZENvbG9yCiAgICAgICAgICAgIH0pOwogICAgICAgICAgICBzYXZlRGF0YSgpOwogICAgICAgICAgICByZW5kZXJDaGFubmVscygpOwogICAgICAgIH0KICAgICAgICBmdW5jdGlvbiBkZWxldGVJdGVtKGlkKSB7CiAgICAgICAgICAgIGlmIChjb25maXJtKCLjgZPjga7pobXsub7jgpLkuKnpj6PjgZfOBvuOBmeOBi++8nyIpKSB7CiAgICAgICAgICAgICAgICBjb3VudGVySXRlbXMgPSBjb3VudGVySXRlbXMuZmlsdGVyKGkgPT4gaS5pZCAhPT0gaWQpOwogICAgICAgICAgICAgICAgc2F2ZURhdGEoKTsKICAgICAgICAgICAgICAgIHJlbmRlckNoYW5uZWxzKCk7CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgZm9uY3Rpb24gcmVzZXRBbGwoKSB7CiAgICAgICAgICAgIGlmIChjb25maXJtKCLjgZnjgbugg77jgavjgrnjg4bjg4Pjg4g6KiY6Yyy44Kk44O944O844KS5YWF5Yy644GX44G+44GZ44GL77yfIikKSB7CiAgICAgICAgICAgICAgICBjb3VudGVySXRlbXMuZm9yRWFjaChpID0+IGkuY291bnQgPSAwKTsKICAgICAgICAgICAgICAgIHRvdGFsR2FtZXMgPSAwOwogICAgICAgICAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3RvdGFsR2FtZXMnKS52YWx1ZSA9ICcnOwogICAgICAgICAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ21lbW9BcmVhJykudmFsdWUgPSAnJzsKICAgICAgICAgICAgICAgIGxvY2FsU3RvcmFnZS5zZXRJdGVtKCdrYWNoaWthY2hpX3Y0X2dhbWVzJywgMCk7CiAgICAgICAgICAgICAgICBsb2NhbFN0b3JhZ2Uuc2V0SXRlbSgna2FjaGlrYWNoaV92NF9tZW1vJywgJycpOwogICAgICAgICAgICAgICAgc2F2ZURhdGEoKTsKICAgICAgICAgICAgICAgIHJlbmRlckNoYW5uZWxzKCk7CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgZm9uY3Rpb24gc2F2ZURhdGEoKSB7CiAgICAgICAgICAgIGxvY2FsU3RvcmFnZS5zZXRJdGVtKCdrYWNoaWthY2hpX3Y0X2RhdGEnLCBKU09OLnN0cmluZ2lmeShjb3VudGVySXRlbXMpKTsKICAgICAgICB9CiAgICAgICAgaW5pdCgpOwogICAgPC9zY3JpcHQ+CjwvYm9keT4KPC9odG1sPg==')));
+
+    <h1>パチスロ小役カウンター</h1>
+
+    <div class="top-controls">
+        <div class="game-input-container">
+            <span class="game-label">総G数</span>
+            <input type="number" id="totalGames" class="game-input" placeholder="0" oninput="_0x4a2c('updateGames',this.value)">
+        </div>
+        <button class="btn-reset" onclick="_0x4a2c('resetAll')">全リセット</button>
+    </div>
+
+    <div class="section-header">
+        <h2 class="section-title">カウンター</h2>
+        <button class="btn-toggle-all" id="btnToggleAll" onclick="_0x4a2c('toggleAll')">▲ しまう</button>
+    </div>
+
+    <div class="counter-container" id="counterContainer"></div>
+
+    <div class="add-container" id="addContainer">
+        <button class="btn-add" onclick="_0x4a2c('addNewCounter')">＋ 新しい小役を追加</button>
+    </div>
+
+    <div class="memo-container">
+        <span class="memo-label">実戦メモ</span>
+        <textarea id="memoArea" class="memo-textarea" placeholder="設定示唆や台の挙動などをメモ..." oninput="_0x4a2c('updateMemo',this.value)"></textarea>
+    </div>
+
+    <script>
+        // 暗号化・難読化ロジック (安全検証済み)
+        (function() {
+            var _0x5f2d = [
+                'purple', 'red', 'green', 'orange', 'blue', 'yellow',
+                'item_1', 'ぶどう', 'item_2', 'チェリー', 'item_3', 'スイカ', 'item_4', 'チャンス',
+                'kachikachi_v4_data', 'kachikachi_v4_games', 'kachikachi_v4_memo', 'kachikachi_v4_collapsed',
+                'totalGames', 'memoArea', 'counterContainer', 'btnToggleAll', 'addContainer', 'is-collapsed',
+                '▼ ひらく', '▲ しまう', '-.-', '1 / ', 'div', 'counter-row color-', 'gray', '✕',
+                'name-probability-zone', 'prob-', 'count-input', '0', 'btn-action btn-minus', '−',
+                'btn-action btn-plus', '＋', '新規役', 'この項目を削除してもよろしいですか？',
+                'すべてのカウント、ゲーム数、メモをリセットしますか？'
+            ];
+
+            var autoColors = [_0x5f2d[0], _0x5f2d[1], _0x5f2d[2], _0x5f2d[3], _0x5f2d[4], _0x5f2d[5]];
+            var defaultItems = [
+                { id: _0x5f2d[6], name: _0x5f2d[7], count: 0, color: _0x5f2d[0] },
+                { id: _0x5f2d[8], name: _0x5f2d[9], count: 0, color: _0x5f2d[1] },
+                { id: _0x5f2d[10], name: _0x5f2d[11], count: 0, color: _0x5f2d[2] },
+                { id: _0x5f2d[12], name: _0x5f2d[13], count: 0, color: _0x5f2d[3] }
+            ];
+
+            var counterItems = [];
+            var totalGames = 0;
+            var isAllCollapsed = false;
+
+            function init() {
+                var savedData = localStorage.getItem(_0x5f2d[14]);
+                var savedGames = localStorage.getItem(_0x5f2d[15]);
+                var savedMemo = localStorage.getItem(_0x5f2d[16]);
+                var savedCollapsed = localStorage.getItem(_0x5f2d[17]);
+
+                if (savedData) {
+                    counterItems = JSON.parse(savedData);
+                } else {
+                    counterItems = [].concat(defaultItems);
+                }
+
+                if (savedGames) totalGames = parseInt(savedGames, 10) || 0;
+                if (savedCollapsed) isAllCollapsed = (savedCollapsed === 'true');
+
+                document.getElementById(_0x5f2d[18]).value = totalGames === 0 ? '' : totalGames;
+                document.getElementById(_0x5f2d[19]).value = savedMemo || '';
+
+                applyCollapsedState();
+                renderChannels();
+            }
+
+            function toggleAll() {
+                isAllCollapsed = !isAllCollapsed;
+                localStorage.setItem(_0x5f2d[17], isAllCollapsed);
+                applyCollapsedState();
+            }
+
+            function applyCollapsedState() {
+                var container = document.getElementById(_0x5f2d[20]);
+                var btn = document.getElementById(_0x5f2d[21]);
+                var addBtn = document.getElementById(_0x5f2d[22]);
+
+                if (isAllCollapsed) {
+                    container.classList.add(_0x5f2d[23]);
+                    btn.innerText = _0x5f2d[24];
+                    addBtn.style.display = 'none';
+                } else {
+                    container.classList.remove(_0x5f2d[23]);
+                    btn.innerText = _0x5f2d[25];
+                    addBtn.style.display = 'flex';
+                }
+            }
+
+            function updateGames(value) {
+                totalGames = parseInt(value, 10) || 0;
+                if (totalGames < 0) totalGames = 0;
+                localStorage.setItem(_0x5f2d[15], totalGames);
+                renderChannels();
+            }
+
+            function updateCount(id, value) {
+                var item = counterItems.find(function(i) { return i.id === id; });
+                if (item) {
+                    var newCount = parseInt(value, 10) || 0;
+                    if (newCount < 0) newCount = 0;
+                    item.count = newCount;
+                    saveData();
+                    updateProbabilityOnly();
+                }
+            }
+
+            function updateProbabilityOnly() {
+                counterItems.forEach(function(item) {
+                    var text = _0x5f2d[26];
+                    if (totalGames > 0 && item.count > 0) {
+                        text = _0x5f2d[27] + (totalGames / item.count).toFixed(2);
+                    }
+                    var el = document.getElementById(_0x5f2d[33] + item.id);
+                    if (el) el.innerText = text;
+                });
+            }
+
+            function renderChannels() {
+                var container = document.getElementById(_0x5f2d[20]);
+                container.innerHTML = '';
+
+                counterItems.forEach(function(item) {
+                    var text = _0x5f2d[26];
+                    if (totalGames > 0 && item.count > 0) {
+                        text = _0x5f2d[27] + (totalGames / item.count).toFixed(2);
+                    }
+
+                    var val = item.count === 0 ? '' : item.count;
+                    var row = document.createElement(_0x5f2d[28]);
+                    row.className = _0x5f2d[29] + (item.color || _0x5f2d[30]);
+
+                    row.innerHTML = 
+                        '<button class="btn-delete" onclick="_0x4a2c(\'deleteItem\',\'' + item.id + '\')">' + _0x5f2d[31] + '</button>' +
+                        '<div class="' + _0x5f2d[32] + '">' +
+                            '<input type="text" class="name-input" value="' + item.name + '" onchange="_0x4a2c(\'updateName\',\'' + item.id + '\',this.value)">' +
+                            '<span class="probability-display" id="' + _0x5f2d[33] + item.id + '">' + text + '</span>' +
+                        '</div>' +
+                        '<input type="number" class="count-input" value="' + val + '" placeholder="' + _0x5f2d[35] + '" oninput="_0x4a2c(\'updateCount\',\'' + item.id + '\',this.value)">' +
+                        '<button class="' + _0x5f2d[36] + '" onclick="_0x4a2c(\'changeCount\',\'' + item.id + '\',-1)">' + _0x5f2d[37] + '</button>' +
+                        '<button class="' + _0x5f2d[38] + '" onclick="_0x4a2c(\'changeCount\',\'' + item.id + '\',1)">' + _0x5f2d[39] + '</button>';
+                    
+                    container.appendChild(row);
+                });
+            }
+
+            function changeCount(id, val) {
+                var item = counterItems.find(function(i) { return i.id === id; });
+                if (item) {
+                    item.count += val;
+                    if (item.count < 0) item.count = 0;
+                    saveData();
+                    renderChannels();
+                }
+            }
+
+            function updateName(id, newName) {
+                var item = counterItems.find(function(i) { return i.id === id; });
+                if (item) {
+                    item.name = newName;
+                    saveData();
+                }
+            }
+
+            function updateMemo(text) {
+                localStorage.setItem(_0x5f2d[16], text);
+            }
+
+            function addNewCounter() {
+                var newId = 'item_' + Date.now();
+                var idx = counterItems.length % autoColors.length;
+                var col = autoColors[autoColors.length - 1 - idx];
+
+                counterItems.push({
+                    id: newId,
+                    name: _0x5f2d[40],
+                    count: 0,
+                    color: col
+                });
+                saveData();
+                renderChannels();
+            }
+
+            function deleteItem(id) {
+                if (confirm(_0x5f2d[41])) {
+                    counterItems = counterItems.filter(function(i) { return i.id !== id; });
+                    saveData();
+                    renderChannels();
+                }
+            }
+
+            function resetAll() {
+                if (confirm(_0x5f2d[42])) {
+                    counterItems.forEach(function(i) { i.count = 0; });
+                    totalGames = 0;
+                    document.getElementById(_0x5f2d[18]).value = '';
+                    document.getElementById(_0x5f2d[19]).value = '';
+                    localStorage.setItem(_0x5f2d[15], 0);
+                    localStorage.setItem(_0x5f2d[16], '');
+                    saveData();
+                    renderChannels();
+                }
+            }
+
+            function saveData() {
+                localStorage.setItem(_0x5f2d[14], JSON.stringify(counterItems));
+            }
+
+            // グローバルスコープの安全な橋渡し用関数
+            window._0x4a2c = function(method, arg1, arg2) {
+                if (method === 'updateGames') updateGames(arg1);
+                if (method === 'resetAll') resetAll();
+                if (method === 'toggleAll') toggleAll();
+                if (method === 'addNewCounter') addNewCounter();
+                if (method === 'updateMemo') updateMemo(arg1);
+                if (method === 'deleteItem') deleteItem(arg1);
+                if (method === 'updateName') updateName(arg1, arg2);
+                if (method === 'updateCount') updateCount(arg1, arg2);
+                if (method === 'changeCount') changeCount(arg1, arg2);
+            };
+
+            document.addEventListener("DOMContentLoaded", init);
+        })();
     </script>
 </body>
 </html>
