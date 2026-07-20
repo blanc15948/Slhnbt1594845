@@ -678,8 +678,31 @@
             const settingNum = i + 1;
 
             if (game.value > 0) {
-              const expB = game.value * bonusProb[i];
-              const expL = game.value * loopProb[i];
+              // 設定1より悪い場合は設定1の確率で固定、設定6より良い場合は設定6の確率で固定して頭打ちにする
+              let bProb = bonusProb[i];
+              let lProb = loopProb[i];
+
+              const userBonusRate = bonus.value / game.value;
+              const userLoopRate  = loop.value / game.value;
+
+              if (userBonusRate < bonusProb[0]) {
+                const ratio = bonusProb[i] / bonusProb[0];
+                bProb = bonusProb[0] * ratio;
+              } else if (userBonusRate > bonusProb[5]) {
+                const ratio = bonusProb[i] / bonusProb[5];
+                bProb = bonusProb[5] * ratio;
+              }
+
+              if (userLoopRate < loopProb[0]) {
+                const ratio = loopProb[i] / loopProb[0];
+                lProb = loopProb[0] * ratio;
+              } else if (userLoopRate > loopProb[5]) {
+                const ratio = loopProb[i] / loopProb[5];
+                lProb = loopProb[5] * ratio;
+              }
+
+              const expB = game.value * bProb;
+              const expL = game.value * lProb;
               likelihoods[i] *= (Math.pow(expB, bonus.value) * Math.exp(-expB));
               likelihoods[i] *= (Math.pow(expL, loop.value) * Math.exp(-expL));
             }
@@ -740,7 +763,6 @@
               }
             }
 
-            // 複数選択された確定フラグをすべて判定するループ処理に変更
             for (const flag of confirmFlags.value) {
               if (flag === 2 && settingNum < 2) likelihoods[i] = 0;
               if (flag === 3 && settingNum % 2 !== 0) likelihoods[i] = 0;
