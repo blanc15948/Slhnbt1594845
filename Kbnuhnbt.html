@@ -517,7 +517,6 @@ function calculateSettings() {
     const startBonusCount = parseInt(document.getElementById('start_bonus_count').value) || 0;
     const startStCount = parseInt(document.getElementById('start_st_count').value) || 0;
 
-    // 打ち始めデータ予想ロジック (前任者分は少し控えめの重み 0.3)
     const predEl = document.getElementById('start_prediction');
     const predDetailsEl = document.getElementById('start_prediction_details');
     if (startNormalG === 0) {
@@ -627,7 +626,6 @@ function calculateSettings() {
     let logScore = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
     let valid = { 1: true, 2: true, 3: true, 4: true, 5: true, 6: true };
 
-    // 確定・否定条件
     if (fix6 || omiItemDaikichi > 0) { valid[1]=valid[2]=valid[3]=valid[4]=valid[5]=false; }
     else if (fix5 || omiItemChukichi > 0) { valid[1]=valid[2]=valid[3]=valid[4]=false; }
     else if (fix4) { valid[1]=valid[2]=valid[3]=false; }
@@ -636,39 +634,73 @@ function calculateSettings() {
 
     if (omiKendama > 0) valid[2] = false;
     if (omiKatana > 0) valid[1] = false;
-
     if (vNone > 0) { valid[1] = valid[2] = valid[3] = valid[4] = false; }
 
-    // 【累計データ優遇】現在の累計データ（CZ・ボーナス・ST・ベル）の重みを「0.8」に引き上げて反映
+    // 【キャップ処理】設定1より下振れた場合、設定6より上振れた場合の制限関数
+    function getCappedProb(actualCount, games, probMap) {
+        if (games <= 0) return { effCount: actualCount, effGames: games };
+        const observedRate = actualCount / games; // 1Gあたりの当選確率など
+        const rate1 = 1 / probMap[1]; // 設定1の確率
+        const rate6 = 1 / probMap[6]; // 設定6の確率
+
+        // 設定1より更に悪化している（下振れが限界を超えている）場合
+        if (observedRate < rate1) {
+            return { effCount: rate1 * games, effGames: games };
+        }
+        // 設定6より更に向上している（上振れが限界を超えている）場合
+        if (observedRate > rate6) {
+            return { effCount: rate6 * games, effGames: games };
+        }
+        return { effCount: actualCount, effGames: games };
+    }
+
     if (normalG > 0 && czCount > 0) {
-        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logPoissonPdf(czCount, normalG, czProbs[s]) * 0.8; }
+        const capped = getCappedProb(czCount, normalG, czProbs);
+        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logPoissonPdf(capped.effCount, capped.effGames, czProbs[s]) * 0.8; }
     }
     if (normalG > 0 && bonusCount > 0) {
-        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logPoissonPdf(bonusCount, normalG, bonusProbs[s]) * 0.8; }
+        const capped = getCappedProb(bonusCount, normalG, bonusProbs);
+        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logPoissonPdf(capped.effCount, capped.effGames, bonusProbs[s]) * 0.8; }
     }
     if (normalG > 0 && stCount > 0) {
-        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logPoissonPdf(stCount, normalG, stProbs[s]) * 0.8; }
+        const capped = getCappedProb(stCount, normalG, stProbs);
+        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logPoissonPdf(capped.effCount, capped.effGames, stProbs[s]) * 0.8; }
     }
     if (totalG > 0 && bellCount !== null && bellCount > 0) {
+        const capped = getCappedProb(bellCount, totalG, bellProbs);
         for (let s = 1; s <= 6; s++) { 
             if (valid[s]) {
-                logScore[s] += logPoissonPdf(bellCount, totalG, bellProbs[s]) * 0.8; 
+                logScore[s] += logPoissonPdf(capped.effCount, capped.effGames, bellProbs[s]) * 0.8; 
             } 
         }
     }
 
-    // その他の項目（チャンス目発光や周期、おみくじ、ボイスなど）は標準の重み 0.5 で均衡を保つ
     if (chTotal > 0 && chFlash >= 0) {
         const flashRates = { 1: 0.07, 2: 0.08, 3: 0.09, 4: 0.11, 5: 0.13, 6: 0.15 };
-        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logBinomialPdf(chFlash, chTotal, flashRates[s]) * 0.5; }
+        const obsRate = chFlash / chTotal;
+        let effFlash = chFlash;
+        if (obsRate < flashRates[1]) effFlash = flashRates[1] * chTotal;
+        if (obsRate > flashRates[6]) effFlash = flashRates[6] * chTotal;
+
+        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logBinomialPdf(effFlash, chTotal, flashRates[s]) * 0.5; }
     }
     if (cycle3Total > 0 && cycle3Win >= 0) {
         const cycle3Rates = { 1: 0.184, 2: 0.238, 3: 0.211, 4: 0.285, 5: 0.324, 6: 0.371 };
-        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logBinomialPdf(cycle3Win, cycle3Total, cycle3Rates[s]) * 0.5; }
+        const obsRate = cycle3Win / cycle3Total;
+        let effWin = cycle3Win;
+        if (obsRate < cycle3Rates[1]) effWin = cycle3Rates[1] * cycle3Total;
+        if (obsRate > cycle3Rates[6]) effWin = cycle3Rates[6] * cycle3Total;
+
+        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logBinomialPdf(effWin, cycle3Total, cycle3Rates[s]) * 0.5; }
     }
     if (cycle4Total > 0 && cycle4Win >= 0) {
         const cycle4Rates = { 1: 0.336, 2: 0.352, 3: 0.363, 4: 0.402, 5: 0.434, 6: 0.469 };
-        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logBinomialPdf(cycle4Win, cycle4Total, cycle4Rates[s]) * 0.5; }
+        const obsRate = cycle4Win / cycle4Total;
+        let effWin = cycle4Win;
+        if (obsRate < cycle4Rates[1]) effWin = cycle4Rates[1] * cycle4Total;
+        if (obsRate > cycle4Rates[6]) effWin = cycle4Rates[6] * cycle4Total;
+
+        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logBinomialPdf(effWin, cycle4Total, cycle4Rates[s]) * 0.5; }
     }
 
     if (omi1) logScore[6] += 0.5;
