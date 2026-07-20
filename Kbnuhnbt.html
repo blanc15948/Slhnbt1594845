@@ -528,9 +528,9 @@ function calculateSettings() {
         predDetailsEl.style.display = 'none';
     } else {
         let startLogScore = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
-        if (startCzCount > 0) { for (let s = 1; s <= 6; s++) startLogScore[s] += logPoissonPdf(startCzCount, startNormalG, czProbs[s]); }
-        if (startBonusCount > 0) { for (let s = 1; s <= 6; s++) startLogScore[s] += logPoissonPdf(startBonusCount, startNormalG, bonusProbs[s]); }
-        if (startStCount > 0) { for (let s = 1; s <= 6; s++) startLogScore[s] += logPoissonPdf(startStCount, startNormalG, stProbs[s]); }
+        if (startCzCount > 0) { for (let s = 1; s <= 6; s++) startLogScore[s] += logPoissonPdf(startCzCount, startNormalG, czProbs[s]) * 0.5; }
+        if (startBonusCount > 0) { for (let s = 1; s <= 6; s++) startLogScore[s] += logPoissonPdf(startBonusCount, startNormalG, bonusProbs[s]) * 0.5; }
+        if (startStCount > 0) { for (let s = 1; s <= 6; s++) startLogScore[s] += logPoissonPdf(startStCount, startNormalG, stProbs[s]) * 0.5; }
         
         startLogScore[4] += 0.20;
         startLogScore[5] += 0.40;
@@ -639,25 +639,23 @@ function calculateSettings() {
 
     if (vNone > 0) { valid[1] = valid[2] = valid[3] = valid[4] = false; }
 
+    // 【重要】すべての確率・統計データを「重み 0.5」に統一し、平等に反映させる
     if (normalG > 0 && czCount > 0) {
-        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logPoissonPdf(czCount, normalG, czProbs[s]) * 0.35; }
+        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logPoissonPdf(czCount, normalG, czProbs[s]) * 0.5; }
     }
     if (normalG > 0 && bonusCount > 0) {
-        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logPoissonPdf(bonusCount, normalG, bonusProbs[s]) * 0.35; }
+        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logPoissonPdf(bonusCount, normalG, bonusProbs[s]) * 0.5; }
     }
     if (normalG > 0 && stCount > 0) {
-        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logPoissonPdf(stCount, normalG, stProbs[s]) * 0.35; }
+        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logPoissonPdf(stCount, normalG, stProbs[s]) * 0.5; }
     }
-    
-    // 【組み込み完了】下段ベル回数の確率反映（ポアソン分布・重み0.35）
     if (totalG > 0 && bellCount !== null && bellCount > 0) {
         for (let s = 1; s <= 6; s++) { 
             if (valid[s]) {
-                logScore[s] += logPoissonPdf(bellCount, totalG, bellProbs[s]) * 0.35; 
+                logScore[s] += logPoissonPdf(bellCount, totalG, bellProbs[s]) * 0.5; 
             } 
         }
     }
-
     if (chTotal > 0 && chFlash >= 0) {
         const flashRates = { 1: 0.07, 2: 0.08, 3: 0.09, 4: 0.11, 5: 0.13, 6: 0.15 };
         for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logBinomialPdf(chFlash, chTotal, flashRates[s]) * 0.5; }
@@ -671,31 +669,31 @@ function calculateSettings() {
         for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logBinomialPdf(cycle4Win, cycle4Total, cycle4Rates[s]) * 0.5; }
     }
 
-    if (omi1) logScore[6] += 0.7;
-    if (omi2) { logScore[2] += 0.4; logScore[6] += 0.4; }
-    if (omi3) { logScore[3] += 0.4; logScore[6] += 0.4; }
-    if (omi4) { logScore[4] += 0.4; logScore[6] += 0.4; }
-    if (omi5) { logScore[5] += 0.4; logScore[6] += 0.4; }
+    if (omi1) logScore[6] += 0.5;
+    if (omi2) { logScore[2] += 0.3; logScore[6] += 0.3; }
+    if (omi3) { logScore[3] += 0.3; logScore[6] += 0.3; }
+    if (omi4) { logScore[4] += 0.3; logScore[6] += 0.3; }
+    if (omi5) { logScore[5] += 0.3; logScore[6] += 0.3; }
 
     if (omiTsuranuki > 0) {
         const dist = { 1: 0.20, 2: 0.20, 3: 0.20, 4: 0.05, 5: 0.18, 6: 0.17 };
-        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += omiTsuranuki * Math.log(dist[s]); }
+        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += omiTsuranuki * Math.log(dist[s]) * 0.5; }
     }
     if (omiTanjyu > 0) {
         const dist = { 1: 0.20, 2: 0.20, 3: 0.05, 4: 0.18, 5: 0.18, 6: 0.19 };
-        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += omiTanjyu * Math.log(dist[s]); }
+        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += omiTanjyu * Math.log(dist[s]) * 0.5; }
     }
     if (omiJiketsu > 0) {
         const dist = { 1: 0.05, 2: 0.19, 3: 0.19, 4: 0.19, 5: 0.19, 6: 0.19 };
-        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += omiJiketsu * Math.log(dist[s]); }
+        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += omiJiketsu * Math.log(dist[s]) * 0.5; }
     }
     if (omiYumi > 0) {
         const dist = { 1: 0.10, 2: 0.12, 3: 0.14, 4: 0.18, 5: 0.22, 6: 0.24 };
-        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += omiYumi * Math.log(dist[s]); }
+        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += omiYumi * Math.log(dist[s]) * 0.5; }
     }
     if (omiAgeha > 0) {
         const dist = { 1: 0.02, 2: 0.05, 3: 0.08, 4: 0.15, 5: 0.30, 6: 0.40 };
-        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += omiAgeha * Math.log(dist[s]); }
+        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += omiAgeha * Math.log(dist[s]) * 0.5; }
     }
 
     const voiceDist = {
@@ -711,12 +709,12 @@ function calculateSettings() {
     if (totalVoice > 0 || vNone > 0) {
         for (let s = 1; s <= 6; s++) {
             if (!valid[s]) continue;
-            if (vNone > 0)   logScore[s] += vNone * Math.log(voiceDist[s].none);
-            if (vMale > 0)   logScore[s] += (vMale * Math.log(voiceDist[s].male)) * 0.6;
-            if (vFemale > 0) logScore[s] += (vFemale * Math.log(voiceDist[s].female)) * 0.6;
-            if (vKageS > 0)  logScore[s] += (vKageS * Math.log(voiceDist[s].kageS)) * 0.6;
-            if (vKageM > 0)  logScore[s] += (vKageM * Math.log(voiceDist[s].kageM)) * 0.6;
-            if (vKageL > 0)  logScore[s] += (vKageL * Math.log(voiceDist[s].kageL)) * 0.6;
+            if (vNone > 0)   logScore[s] += vNone * Math.log(voiceDist[s].none) * 0.5;
+            if (vMale > 0)   logScore[s] += vMale * Math.log(voiceDist[s].male) * 0.5;
+            if (vFemale > 0) logScore[s] += vFemale * Math.log(voiceDist[s].female) * 0.5;
+            if (vKageS > 0)  logScore[s] += vKageS * Math.log(voiceDist[s].kageS) * 0.5;
+            if (vKageM > 0)  logScore[s] += vKageM * Math.log(voiceDist[s].kageM) * 0.5;
+            if (vKageL > 0)  logScore[s] += vKageL * Math.log(voiceDist[s].kageL) * 0.5;
         }
 
         if (vMale > 0 || vFemale > 0) {
@@ -724,7 +722,7 @@ function calculateSettings() {
             const femaleRatio = vFemale / (vMale + vFemale);
             const diff = Math.abs(maleRatio - femaleRatio); 
             
-            const weight = diff * Math.min(5, (vMale + vFemale)) * 0.4; 
+            const weight = diff * Math.min(5, (vMale + vFemale)) * 0.5; 
             
             if (maleRatio > femaleRatio) {
                 logScore[1] += weight;
