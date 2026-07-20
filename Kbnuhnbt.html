@@ -517,7 +517,7 @@ function calculateSettings() {
     const startBonusCount = parseInt(document.getElementById('start_bonus_count').value) || 0;
     const startStCount = parseInt(document.getElementById('start_st_count').value) || 0;
 
-    // 打ち始めデータ予想ロジック
+    // 打ち始めデータ予想ロジック (前任者分は少し控えめの重み 0.3)
     const predEl = document.getElementById('start_prediction');
     const predDetailsEl = document.getElementById('start_prediction_details');
     if (startNormalG === 0) {
@@ -528,9 +528,9 @@ function calculateSettings() {
         predDetailsEl.style.display = 'none';
     } else {
         let startLogScore = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
-        if (startCzCount > 0) { for (let s = 1; s <= 6; s++) startLogScore[s] += logPoissonPdf(startCzCount, startNormalG, czProbs[s]) * 0.5; }
-        if (startBonusCount > 0) { for (let s = 1; s <= 6; s++) startLogScore[s] += logPoissonPdf(startBonusCount, startNormalG, bonusProbs[s]) * 0.5; }
-        if (startStCount > 0) { for (let s = 1; s <= 6; s++) startLogScore[s] += logPoissonPdf(startStCount, startNormalG, stProbs[s]) * 0.5; }
+        if (startCzCount > 0) { for (let s = 1; s <= 6; s++) startLogScore[s] += logPoissonPdf(startCzCount, startNormalG, czProbs[s]) * 0.3; }
+        if (startBonusCount > 0) { for (let s = 1; s <= 6; s++) startLogScore[s] += logPoissonPdf(startBonusCount, startNormalG, bonusProbs[s]) * 0.3; }
+        if (startStCount > 0) { for (let s = 1; s <= 6; s++) startLogScore[s] += logPoissonPdf(startStCount, startNormalG, stProbs[s]) * 0.3; }
         
         startLogScore[4] += 0.20;
         startLogScore[5] += 0.40;
@@ -639,23 +639,25 @@ function calculateSettings() {
 
     if (vNone > 0) { valid[1] = valid[2] = valid[3] = valid[4] = false; }
 
-    // 【重要】すべての確率・統計データを「重み 0.5」に統一し、平等に反映させる
+    // 【累計データ優遇】現在の累計データ（CZ・ボーナス・ST・ベル）の重みを「0.8」に引き上げて反映
     if (normalG > 0 && czCount > 0) {
-        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logPoissonPdf(czCount, normalG, czProbs[s]) * 0.5; }
+        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logPoissonPdf(czCount, normalG, czProbs[s]) * 0.8; }
     }
     if (normalG > 0 && bonusCount > 0) {
-        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logPoissonPdf(bonusCount, normalG, bonusProbs[s]) * 0.5; }
+        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logPoissonPdf(bonusCount, normalG, bonusProbs[s]) * 0.8; }
     }
     if (normalG > 0 && stCount > 0) {
-        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logPoissonPdf(stCount, normalG, stProbs[s]) * 0.5; }
+        for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logPoissonPdf(stCount, normalG, stProbs[s]) * 0.8; }
     }
     if (totalG > 0 && bellCount !== null && bellCount > 0) {
         for (let s = 1; s <= 6; s++) { 
             if (valid[s]) {
-                logScore[s] += logPoissonPdf(bellCount, totalG, bellProbs[s]) * 0.5; 
+                logScore[s] += logPoissonPdf(bellCount, totalG, bellProbs[s]) * 0.8; 
             } 
         }
     }
+
+    // その他の項目（チャンス目発光や周期、おみくじ、ボイスなど）は標準の重み 0.5 で均衡を保つ
     if (chTotal > 0 && chFlash >= 0) {
         const flashRates = { 1: 0.07, 2: 0.08, 3: 0.09, 4: 0.11, 5: 0.13, 6: 0.15 };
         for (let s = 1; s <= 6; s++) { if (valid[s]) logScore[s] += logBinomialPdf(chFlash, chTotal, flashRates[s]) * 0.5; }
