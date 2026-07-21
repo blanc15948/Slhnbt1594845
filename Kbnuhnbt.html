@@ -60,7 +60,7 @@
 
     <!-- 1. 打ち始め時のデータ (前任者分) -->
     <div class="section" style="background: #25281e; border-color: #3b422a;">
-        <div class="section-title" style="color: #aacc22; border-left-color: #aacc22;" onclick="toggleSection(this)">打ち始め時のデータ (前任者分)</div>
+        <div class="section-title" style="color: #aacc22; border-left-color: #aacc22;" onclick="toggleSection(this)">打ち始め時のデータ(前任者分)</div>
         <div class="section-content">
             <div class="input-group">
                 <label>打ち始め 通常G数</br>(データランプ)</label>
@@ -75,11 +75,11 @@
                 <input type="number" id="start_cz_count" value="" placeholder="0" min="0" oninput="syncTotalData(); calculateSettings();">
             </div>
             <div class="input-group">
-                <label>打ち始め ボーナス回数</br>(ハヤジロ、エピボ込)</label>
+                <label>打ち始め 初当たりボーナス回数</br>(ハヤジロ、エピボ込)</label>
                 <input type="number" id="start_bonus_count" value="" placeholder="0" min="0" oninput="syncTotalData(); calculateSettings();">
             </div>
             <div class="input-group">
-                <label>打ち始め ST回数</label>
+                <label>打ち始め 初当たりST回数</label>
                 <input type="number" id="start_st_count" value="" placeholder="0" min="0" oninput="syncTotalData(); calculateSettings();">
             </div>
             
@@ -122,7 +122,7 @@
                 </div>
             </div>
             <div class="input-group">
-                <label>累計 ST初当たり回数</label>
+                <label>累計 初当たりST回数</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('st_count', -1)">-</button>
                     <input type="number" id="st_count" value="" placeholder="0" min="0" oninput="calculateSettings()">
@@ -150,7 +150,7 @@
         <div class="section-title" style="color: #40c4ff; border-left-color: #40c4ff;" onclick="toggleSection(this)">通常時 チャンス目発光（帯無し）</div>
         <div class="section-content">
             <div class="input-group">
-                <label>チャンス目 引いた回数</label>
+                <label>通常時(帯無し)</br>チャンス目 引いた回数</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('ch_total', -1)">-</button>
                     <input type="number" id="ch_total" value="" placeholder="0" min="0" oninput="calculateSettings()">
@@ -158,7 +158,7 @@
                 </div>
             </div>
             <div class="input-group">
-                <label>通常時(帯無し) 発光した回数</label>
+                <label>通常時(帯無し)</br> 発光した回数</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('ch_flash', -1)">-</button>
                     <input type="number" id="ch_flash" value="" placeholder="0" min="0" oninput="calculateSettings()">
