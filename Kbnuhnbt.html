@@ -71,11 +71,11 @@
                 <input type="number" id="start_total_g" value="" placeholder="0" min="0" oninput="syncTotalData(); calculateSettings();">
             </div>
             <div class="input-group">
-                <label>打ち始め CZ回数</label>
+                <label>打ち始め 全CZ回数</label>
                 <input type="number" id="start_cz_count" value="" placeholder="0" min="0" oninput="syncTotalData(); calculateSettings();">
             </div>
             <div class="input-group">
-                <label>打ち始め ボーナス回数</label>
+                <label>打ち始め ボーナス回数</br>(ハヤジロ、エピボ込)</label>
                 <input type="number" id="start_bonus_count" value="" placeholder="0" min="0" oninput="syncTotalData(); calculateSettings();">
             </div>
             <div class="input-group">
@@ -102,11 +102,11 @@
                 <input type="number" id="normal_g" value="" placeholder="0" min="0" oninput="syncTotalG(); calculateSettings();">
             </div>
             <div class="input-group">
-                <label>累計 総ゲーム数</label>
+                <label>累計 総ゲーム数</br>(メニュー画面)</label>
                 <input type="number" id="accum_total_g" value="" placeholder="0" min="0" oninput="syncTotalG(); calculateSettings();">
             </div>
             <div class="input-group">
-                <label>累計 CZ回数</label>
+                <label>累計 全CZ回数</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('cz_count', -1)">-</button>
                     <input type="number" id="cz_count" value="" placeholder="0" min="0" oninput="calculateSettings()">
@@ -114,7 +114,7 @@
                 </div>
             </div>
             <div class="input-group">
-                <label>累計 初当たりボーナス回数</label>
+                <label>累計 初当たりボーナス回数</br>(ハヤジロ、エピボ込)</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('bonus_count', -1)">-</button>
                     <input type="number" id="bonus_count" value="" placeholder="0" min="0" oninput="calculateSettings()">
@@ -135,7 +135,7 @@
                 <input type="number" id="total_g" value="" placeholder="0" min="0" readonly>
             </div>
             <div class="input-group">
-                <label>下段ベル回数</label>
+                <label>下段ベル回数</br>(13枚役)</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('bell_count', -1)">-</button>
                     <input type="number" id="bell_count" value="" placeholder="0" min="0" oninput="calculateSettings()">
@@ -145,9 +145,9 @@
         </div>
     </div>
 
-    <!-- 3. 通常時 チャンス目発光（低確時） -->
+    <!-- 3. 通常時 チャンス目発光（帯無し） -->
     <div class="section" style="background: #233240; border-color: #334d66;">
-        <div class="section-title" style="color: #40c4ff; border-left-color: #40c4ff;" onclick="toggleSection(this)">通常時 チャンス目発光（低確時）</div>
+        <div class="section-title" style="color: #40c4ff; border-left-color: #40c4ff;" onclick="toggleSection(this)">通常時 チャンス目発光（帯無し）</div>
         <div class="section-content">
             <div class="input-group">
                 <label>チャンス目 引いた回数</label>
@@ -158,7 +158,7 @@
                 </div>
             </div>
             <div class="input-group">
-                <label>低確時 発光した回数</label>
+                <label>通常時(帯無し) 発光した回数</label>
                 <div class="counter-controls">
                     <button class="btn-count" onclick="changeVal('ch_flash', -1)">-</button>
                     <input type="number" id="ch_flash" value="" placeholder="0" min="0" oninput="calculateSettings()">
