@@ -767,10 +767,38 @@ function getVal(id) {
     return isNaN(v) ? 0 : v;
 }
 
+// データの保存
+function saveData() {
+    const fields = document.querySelectorAll('.count-field');
+    const data = {};
+    fields.forEach(f => {
+        data[f.id] = f.value;
+    });
+    localStorage.setItem('sao2_tool_data', JSON.stringify(data));
+}
+
+// データの読み込み
+function loadData() {
+    const saved = localStorage.getItem('sao2_tool_data');
+    if (!saved) return;
+    try {
+        const data = JSON.parse(saved);
+        for (const id in data) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.value = data[id];
+            }
+        }
+    } catch (e) {
+        console.error('Failed to load saved data', e);
+    }
+}
+
 function resetAll() {
     if (confirm('入力内容を全リセットしますか？')) {
         const fields = document.querySelectorAll('.count-field');
         fields.forEach(f => f.value = '');
+        localStorage.removeItem('sao2_tool_data');
         calculateSetting();
     }
 }
@@ -886,6 +914,7 @@ function poissonProbability(lambda, k) {
 }
 
 function calculateSetting() {
+    saveData(); // 入力値が変わるたびに自動保存
     updateInputBadges();
 
     const prevG = getVal('prev_games');
@@ -1157,7 +1186,8 @@ function calculateSetting() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    calculateSetting();
+    loadData();          // 起動時に保存データを復元
+    calculateSetting();  // 復元したデータをもとに計算・描画
 });
 </script>
 
