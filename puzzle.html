@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ぬるぬる落ちる！ズーキーパー風パズル</title>
+    <style>
+        :root {
+            --board-max-size: 450px; 
+            --board-size: 8;
+        }
+
+        body { 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+            text-align: center; 
+            background: #e0f2f1; 
+            margin: 0;
+            padding: 10px;
+            touch-action: none;
+            overflow: hidden; 
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        h1 { 
+            color: #006064; 
+            text-shadow: 1px 1px 0 white; 
+            font-size: 1.5rem; 
+            margin: 5px 0;
+        }
+
+        #ui-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 5px;
+        }
+
+        #score-container {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #004d40;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 5px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        #score {
+            color: #e65100;
+        }
+
+        /* ★タイマー表示のスタイル */
+        #timer-container {
+            width: 140px;
+            background: #b0bec5;
+            height: 16px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #37474f;
+            position: relative;
+        }
+        #timer-bar {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #8bc34a);
+            transition: width 0.1s linear, background-color 0.3s;
+        }
+        #timer-text {
+            position: absolute;
+            width: 100%;
+            top: 0; left: 0;
+            font-size: 10px;
+            line-height: 16px;
+            font-weight: bold;
+            color: #37474f;
+        }
+
+        #combo-display {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: #ff3d00;
+            height: 30px;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff;
+            transform: scale(0);
+            transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #combo-display.show {
+            transform: scale(1.2);
+        }
+
+        #board-container {
+            width: 92vw;
+            height: 92vw;
+            max-width: var(--board-max-size);
+            max-height: var(--board-max-size);
+            margin: 0 auto;
+            background: #263238; 
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .tile {
+            width: 12%;
+            height: 12%;
+            background: white;
+            position: absolute; 
+            font-size: calc(92vw * 0.12 * 0.65);
+            border-radius: 4px;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.2s, background-color 0.2s;
+            z-index: 10;
+        }
+
+        @media (min-width: 450px) {
+            .tile {
+                font-size: calc(var(--board-max-size) * 0.12 * 0.65);
+            }
+        }
+
+        .tile:active { cursor: grabbing; z-index: 20; } 
+
+        .matched {
+            background-color: #ffccbc !important;
+        }
+
+        .rainbow-tile {
+            background: linear-gradient(45deg, #ff8a80, #ffd54f, #81c784, #4fc3f7, #ba68c8) !important;
+            background-size: 400% 400% !important;
+            animation: rainbow-flash 2s linear infinite alternate !important;
+            cursor: pointer;
+            border: 2px solid #ffffff;
+            box-shadow: 0 0 8px rgba(255,255,255,0.8);
+        }
+
+        .bomb-tile {
+            background: #37474f !important;
+            color: #ffffff;
+            border: 2px solid #ff3d00;
+            box-shadow: 0 0 12px #ff3d00;
+            cursor: pointer;
+            animation: bomb-pulse 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes rainbow-flash {
+            0% { background-position: 0% 50%; transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { background-position: 100% 50%; transform: scale(1); }
+        }
+
+        @keyframes bomb-pulse {
+            0% { transform: scale(1); background-color: #37474f !important; }
+            100% { transform: scale(1.08); background-color: #d84315 !important; }
+        }
+
+        .hint-active {
+            background-color: #fff59d !important; 
+            animation: hint-pulse 0.8s ease-in-out infinite alternate;
+            z-index: 15;
+        }
+
+        @keyframes hint-pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 rgba(255,235,59,0); }
+            100% { transform: scale(1.1); box-shadow: 0 0 10px #fbc02d; }
+        }
+
+        #game-over-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        #game-over-screen.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #game-over-screen h2 {
+            color: #ff5252;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        #game-over-screen p {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        #game-over-screen button {
+            background: #009688;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: background 0.2s;
+        }
+        #game-over-screen button:active {
+            background: #00796b;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>動物パズル</h1>
+    <!-- UIコンテナの中にスコアと新タイマーを並べる -->
+    <div id="ui-container">
+        <div id="score-container">SCORE: <span id="score">0</span></div>
+        <div id="timer-container">
+            <div id="timer-bar"></div>
+            <div id="timer-text">120.0s</div>
+        </div>
+    </div>
+    
+    <div id="combo-display"></div>
+    
+    <div id="board-container">
+        <div id="game-over-screen">
+            <h2>GAME OVER</h2>
+            <p id="game-over-reason">動かせる動物がなくなりました</p>
+            <button onclick="createBoard()">もう一度遊ぶ</button>
+        </div>
+    </div>
+
+<script>
+const BOARD_SIZE = 8;
+const ANIMALS = ['🦁', '🐼', '🐘', '🦒', '🐵', '🦛', '🐊'];
+const MAX_TIME = 120; // ★最大＆初期制限時間（120秒）
+
+let boardState = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
+let startX, startY, activeTile = null;
+let isAnimating = false; 
+
+let currentScore = 0;
+let comboCount = 0; 
+
+let hintTimer = null;
+let hintedElements = []; 
+
+// ★タイマー用の変数
+let timeLeft = MAX_TIME;
+let countdownInterval = null;
+let isGameOver = false;
+
+const container = document.getElementById('board-container');
+const scoreDisplay = document.getElementById('score');
+const comboDisplay = document.getElementById('combo-display'); 
+const gameOverScreen = document.getElementById('game-over-screen');
+const gameOverReason = document.getElementById('game-over-reason');
+const timerBar = document.getElementById('timer-bar');
+const timerText = document.getElementById('timer-text');
+
+function getTilePosStyles(row, col) {
+    return {
+        x: `${0.5 + col * 12.4}%`,
+        y: `${0.5 + row * 12.4}%`
+    };
+}
+
+function getAvailableMove(grid) {
+    const directions = [{dr:0, dc:1}, {dr:1, dc:0}]; 
+    
+    for (let r = 0; r < BOARD_SIZE; r++) {
+        for (let c = 0; c < BOARD_SIZE; c++) {
+            if (boardState[r][c]?.isRainbow || boardState[r][c]?.isBomb) return { r1: r, c1: c, r2: r, c2: c };
+
+            for (let d of directions) {
+                let r2 = r + d.dr;
+                let c2 = c + d.dc;
+                
+                if (r2 < BOARD_SIZE && c2 < BOARD_SIZE) {
+                    let temp = grid[r][c];
+                    grid[r][c] = grid[r2][c2];
+                    grid[r2][c2] = temp;
+                    
+                    let isMatch = false;
+                    for (let i = 0; i < BOARD_SIZE; i++) {
+                        for (let j = 0; j < BOARD_SIZE; j++) {
+                            if (j < BOARD_SIZE - 2 && grid[i][j] && grid[i][j] === grid[i][j+1] && grid[i][j] === grid[i][j+2]) isMatch = true;
+                            if (i < BOARD_SIZE - 2 && grid[i][j] && grid[i][j] === grid[i+1][j] && grid[i][j] === grid[i+2][j]) isMatch = true;
+                        }
+                    }
+                    
+                    temp = grid[r][c];
+                    grid[r][c] = grid[r2][c2];
+                    grid[r2][c2] = temp;
+                    
+                    if (isMatch) return { r1: r, c1: c, r2: r2, c2: c2 };
+                }
+            }
+        }
+    }
+    return null; 
+}
+
+function generateValidInitialData() {
+    while (true) {
+        let testGrid = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
+        for (let r = 0; r < BOARD_SIZE; r++) {
+            for (let c = 0; c < BOARD_SIZE; c++) {
+                testGrid[r][c] = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+            }
+        }
+
+        let hasInitialMatch = false;
+        for (let r = 0; r < BOARD_SIZE; r++) {
+            for (let c = 0; c < BOARD_SIZE; c++) {
+                if (c < BOARD_SIZE - 2 && testGrid[r][c] === testGrid[r][c+1] && testGrid[r][c] === testGrid[r][c+2]) hasInitialMatch = true;
+                if (r < BOARD_SIZE - 2 && testGrid[r][c] === testGrid[r+1][c] && testGrid[r][c] === testGrid[r+2][c]) hasInitialMatch = true;
+            }
+        }
+        if (hasInitialMatch) continue; 
+
+        if (getAvailableMove(testGrid) !== null) {
+            return testGrid; 
+        }
+    }
+}
+
+// ★新要素：タイマーシステムの起動
+function startTimer() {
+    clearInterval(countdownInterval);
+    timeLeft = MAX_TIME;
+    isGameOver = false;
+    updateTimerUI();
+
+    countdownInterval = setInterval(() => {
+        if (isAnimating || isGameOver) return; // アニメーション演出中などは一瞬止める（猶予）
+
+        timeLeft -= 0.1;
+        if (timeLeft <= 0) {
+            timeLeft = 0;
+            triggerGameOver("制限時間がなくなりました");
+        }
+        updateTimerUI();
+    }, 100);
+}
+
+// ★新要素：タイマーバーの見た目更新
+function updateTimerUI() {
+    const percentage = (timeLeft / MAX_TIME) * 100;
+    timerBar.style.width = `${percentage}%`;
+    timerText.innerText = `${timeLeft.toFixed(1)}s`;
+
+    // 残り時間20秒以下でバーを赤くする警告演出
+    if (timeLeft <= 20) {
+        timerBar.style.background = "linear-gradient(90deg, #f44336, #e91e63)";
+    } else {
+        timerBar.style.background = "linear-gradient(90deg, #4caf50, #8bc34a)";
+    }
+}
+
+// ★新要素：時間を回復させる処理（消した動物1匹につき0.1秒回復）
+function gainTime(matchCount) {
+    if (isGameOver) return;
+    timeLeft += matchCount * 0.1;
+    if (timeLeft > MAX_TIME) timeLeft = MAX_TIME; // 上限ストッパー
+    updateTimerUI();
+}
+
+function resetHintTimer() {
+    clearTimeout(hintTimer);
+    removeHintEffects();
+    if (isAnimating || gameOverScreen.classList.contains('show') || isGameOver) return;
+    hintTimer = setTimeout(() => { showHint(); }, 5000);
+}
+
+function removeHintEffects() {
+    hintedElements.forEach(el => { if (el) el.classList.remove('hint-active'); });
+    hintedElements = [];
+}
+
+function showHint() {
+    let simpleGrid = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
+    for (let r = 0; r < BOARD_SIZE; r++) {
+        for (let c = 0; c < BOARD_SIZE; c++) {
+            if (boardState[r][c]) simpleGrid[r][c] = boardState[r][c].animal;
+        }
+    }
+
+    const move = getAvailableMove(simpleGrid);
+    if (move) {
+        const tile1 = boardState[move.r1][move.c1]?.element;
+        const tile2 = boardState[move.r2][move.c2]?.element;
+        if (tile1) { tile1.classList.add('hint-active'); hintedElements.push(tile1); }
+        if (tile2) { tile2.classList.add('hint-active'); hintedElements.push(tile2); }
+    }
+}
+
+function updateComboDisplay() {
+    if (comboCount > 1) {
+        comboDisplay.innerText = `${comboCount} COMBO!`;
+        comboDisplay.classList.add('show');
+    } else {
+        comboDisplay.classList.remove('show');
+    }
+}
+
+function spawnRainbowTile(row, col, targetAnimal) {
+    const tile = document.createElement('div');
+    tile.classList.add('tile', 'rainbow-tile');
+    tile.innerText = "🌈";
+    tile.id = `tile-${row}-${col}`;
+    tile.addEventListener('mousedown', dragStart);
+    tile.addEventListener('touchstart', dragStart, { passive: false });
+    tile.addEventListener('click', () => triggerRainbowExplosion(row, col));
+    container.appendChild(tile);
+
+    const pos = getTilePosStyles(row, col);
+    tile.style.left = pos.x;
+    tile.style.top = pos.y;
+
+    boardState[row][col] = { animal: targetAnimal, element: tile, isRainbow: true };
+}
+
+function spawnBombTile(row, col) {
+    const tile = document.createElement('div');
+    tile.classList.add('tile', 'bomb-tile');
+    tile.innerText = "💣";
+    tile.id = `tile-${row}-${col}`;
+    tile.addEventListener('mousedown', dragStart);
+    tile.addEventListener('touchstart', dragStart, { passive: false });
+    tile.addEventListener('click', () => triggerBombExplosion(row, col));
+    container.appendChild(tile);
+
+    const pos = getTilePosStyles(row, col);
+    tile.style.left = pos.x;
+    tile.style.top = pos.y;
+
+    boardState[row][col] = { animal: 'BOMB', element: tile, isBomb: true };
+}
+
+function triggerRainbowExplosion(r, c) {
+    if (isAnimating || !boardState[r][c] || !boardState[r][c].isRainbow || isGameOver) return;
+    isAnimating = true;
+    clearTimeout(hintTimer);
+    removeHintEffects();
+
+    comboCount++; 
+    updateComboDisplay();
+
+    const targetAnimal = boardState[r][c].animal;
+    let matchCount = 0;
+
+    const rbEl = boardState[r][c].element;
+    rbEl.style.opacity = '0';
+    setTimeout(() => rbEl.remove(), 200);
+    boardState[r][c] = null;
+    matchCount++;
+
+    for (let row = 0; row < BOARD_SIZE; row++) {
+        for (let col = 0; col < BOARD_SIZE; col++) {
+            if (boardState[row][col] && boardState[row][col].animal === targetAnimal) {
+                const el = boardState[row][col].element;
+                el.classList.add('matched');
+                el.style.opacity = '0';
+                setTimeout(((targetEl) => { return () => targetEl.remove(); })(el), 200);
+                boardState[row][col] = null;
+                matchCount++;
+            }
+        }
+    }
+
+    currentScore += (matchCount * 15) * comboCount;
+    scoreDisplay.innerText = currentScore;
+    
+    // レインボー爆発分のタイム回復（消した数 × 0.1秒）
+    gainTime(matchCount);
+
+    setTimeout(() => { dropTiles(); }, 250);
+}
+
+function triggerBombExplosion(r, c) {
+    if (isAnimating || !boardState[r][c] || !boardState[r][c].isBomb || isGameOver) return;
+    isAnimating = true;
+    clearTimeout(hintTimer);
+    removeHintEffects();
+
+    comboCount++;
+    updateComboDisplay();
+
+    let matchCount = 0;
+
+    for (let i = 0; i < BOARD_SIZE; i++) {
+        if (boardState[r][i]) {
+            const el = boardState[r][i].element;
+            el.classList.add('matched');
+            el.style.opacity = '0';
+            setTimeout(((targetEl) => { return () => targetEl.remove(); })(el), 200);
+            boardState[r][i] = null;
+            matchCount++;
+        }
+        if (boardState[i][c]) {
+            const el = boardState[i][c].element;
+            el.classList.add('matched');
+            el.style.opacity = '0';
+            setTimeout(((targetEl) => { return () => targetEl.remove(); })(el), 200);
+            boardState[i][c] = null;
+            matchCount++;
+        }
+    }
+
+    currentScore += (matchCount * 12) * comboCount;
+    scoreDisplay.innerText = currentScore;
+
+    // 爆弾爆発分のタイム回復（消した数 × 0.1秒）
+    gainTime(matchCount);
+
+    setTimeout(() => { dropTiles(); }, 250);
+}
+
+function createBoard() {
+    gameOverScreen.classList.remove('show'); 
+    isAnimating = true;
+    clearTimeout(hintTimer);
+    removeHintEffects();
+    
+    const tiles = container.querySelectorAll('.tile');
+    tiles.forEach(t => t.remove());
+
+    currentScore = 0; 
+    scoreDisplay.innerText = currentScore;
+    comboCount = 0;
+    updateComboDisplay();
+
+    const validData = generateValidInitialData();
+
+    for (let r = 0; r < BOARD_SIZE; r++) {
+        for (let c = 0; c < BOARD_SIZE; c++) {
+            const animal = validData[r][c];
+            const tile = document.createElement('div');
+            tile.classList.add('tile');
+            tile.innerText = animal;
+            tile.id = `tile-${r}-${c}`; 
+
+            tile.addEventListener('mousedown', dragStart);
+            tile.addEventListener('touchstart', dragStart, { passive: false });
+            container.appendChild(tile);
+
+            boardState[r][c] = { animal: animal, element: tile };
+
+            const finalPos = getTilePosStyles(r, c);
+            const startY = `-150%`; 
+            tile.style.left = finalPos.x;
+            tile.style.top = startY;
+            tile.style.transition = 'none';
+        }
+    }
+
+    requestAnimationFrame(() => {
+        for (let r = 0; r < BOARD_SIZE; r++) {
+            for (let c = 0; c < BOARD_SIZE; c++) {
+                const data = boardState[r][c];
+                const finalPos = getTilePosStyles(r, c);
+                data.element.style.transition = 'top 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.2s, background-color 0.2s'; 
+                data.element.style.transitionDelay = `${(BOARD_SIZE - r) * 40}ms`;
+                data.element.style.top = finalPos.y;
+            }
+        }
+    });
+
+    setTimeout(() => {
+        for (let r = 0; r < BOARD_SIZE; r++) {
+            for (let c = 0; c < BOARD_SIZE; c++) {
+                boardState[r][c].element.style.transitionDelay = '0ms'; 
+                boardState[r][c].element.style.transition = 'top 0.25s ease-out, left 0.25s ease-out, opacity 0.2s, background-color 0.2s';
+            }
+        }
+        isAnimating = false;
+        startTimer(); // ★ゲーム盤面が整ったらタイマースタート
+        resetHintTimer(); 
+    }, 800);
+}
+
+function dragStart(e) {
+    if (isAnimating || isGameOver) return;
+    clearTimeout(hintTimer); 
+    removeHintEffects();
+
+    activeTile = e.currentTarget;
+    if (e.type === 'touchstart') {
+        startX = e.touches[0].pageX;
+        startY = e.touches[0].pageY;
+    } else {
+        startX = e.pageX;
+        startY = e.pageY;
+    }
+}
+
+function dragEnd(e) {
+    if (!activeTile || isAnimating || isGameOver) {
+        resetHintTimer(); 
+        return;
+    }
+
+    let pageX, pageY;
+    if (e.type === 'touchend') {
+        if (e.changedTouches && e.changedTouches.length > 0) {
+            pageX = e.changedTouches[0].pageX;
+            pageY = e.changedTouches[0].pageY;
+        } else {
+            activeTile = null;
+            resetHintTimer();
+            return;
+        }
+    } else {
+        pageX = e.pageX;
+        pageY = e.pageY;
+    }
+
+    const diffX = pageX - startX;
+    const diffY = pageY - startY;
+    const threshold = 30; 
+
+    const parts = activeTile.id.split('-');
+    const r1 = parseInt(parts[1]), c1 = parseInt(parts[2]);
+    let r2 = r1, c2 = c1;
+
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > threshold) {
+        c2 = diffX > 0 ? c1 + 1 : c1 - 1;
+    } else if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > threshold) {
+        r2 = diffY > 0 ? r1 + 1 : r1 - 1;
+    }
+
+    if (r2 >= 0 && r2 < BOARD_SIZE && c2 >= 0 && c2 < BOARD_SIZE && (r1 !== r2 || c1 !== c2)) {
+        comboCount = 0; 
+        swapTiles(r1, c1, r2, c2);
+    } else {
+        if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10) {
+            if (boardState[r1][c1]?.isRainbow) triggerRainbowExplosion(r1, c1);
+            else if (boardState[r1][c1]?.isBomb) triggerBombExplosion(r1, c1);
+            else resetHintTimer();
+        } else {
+            resetHintTimer();
+        }
+    }
+    activeTile = null;
+}
+
+function swapTiles(r1, c1, r2, c2) {
+    isAnimating = true;
+
+    let temp = boardState[r1][c1];
+    boardState[r1][c1] = boardState[r2][c2];
+    boardState[r2][c2] = temp;
+    
+    boardState[r1][c1].element.id = `tile-${r1}-${c1}`;
+    boardState[r2][c2].element.id = `tile-${r2}-${c2}`;
+
+    updateGridAppearance();
+
+    setTimeout(() => {
+        if (boardState[r1][c1]?.isRainbow) { isAnimating = false; triggerRainbowExplosion(r1, c1); return; }
+        if (boardState[r2][c2]?.isRainbow) { isAnimating = false; triggerRainbowExplosion(r2, c2); return; }
+        if (boardState[r1][c1]?.isBomb) { isAnimating = false; triggerBombExplosion(r1, c1); return; }
+        if (boardState[r2][c2]?.isBomb) { isAnimating = false; triggerBombExplosion(r2, c2); return; }
+
+        const hasMatch = checkAndProcessMatches(false); 
+        
+        if (!hasMatch) {
+            setTimeout(() => {
+                let temp2 = boardState[r1][c1];
+                boardState[r1][c1] = boardState[r2][c2];
+                boardState[r2][c2] = temp2;
+                boardState[r1][c1].element.id = `tile-${r1}-${c1}`;
+                boardState[r2][c2].element.id = `tile-${r2}-${c2}`;
+                
+                updateGridAppearance();
+                comboCount = 0; 
+                updateComboDisplay();
+                
+                setTimeout(() => {
+                    isAnimating = false;
+                    resetHintTimer(); 
+                }, 300);
+            }, 150);
+        }
+    }, 300);
+}
+
+function updateGridAppearance() {
+    for (let r = 0; r < BOARD_SIZE; r++) {
+        for (let c = 0; c < BOARD_SIZE; c++) {
+            const data = boardState[r][c];
+            if (data) {
+                const pos = getTilePosStyles(r, c);
+                data.element.style.left = pos.x;
+                data.element.style.top = pos.y;
+                data.element.classList.remove('matched');
+            }
+        }
+    }
+}
+
+function checkAndProcessMatches(allowUnlock = true) {
+    let matchGrid = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(false));
+    let anyMatch = false;
+    let animalMatchGroups = {};
+
+    for (let r = 0; r < BOARD_SIZE; r++) {
+        for (let c = 0; c < BOARD_SIZE - 2; c++) {
+            let animal = boardState[r][c]?.animal;
+            if (animal && animal === boardState[r][c+1]?.animal && animal === boardState[r][c+2]?.animal) {
+                matchGrid[r][c] = matchGrid[r][c+1] = matchGrid[r][c+2] = anyMatch = true;
+                if (!animalMatchGroups[animal]) animalMatchGroups[animal] = [];
+                animalMatchGroups[animal].push({r: r, c: c}, {r: r, c: c+1}, {r: r, c: c+2});
+            }
+        }
+    }
+
+    for (let c = 0; c < BOARD_SIZE; c++) {
+        for (let r = 0; r < BOARD_SIZE - 2; r++) {
+            let animal = boardState[r][c]?.animal;
+            if (animal && animal === boardState[r+1][c]?.animal && animal === boardState[r+2][c]?.animal) {
+                matchGrid[r][c] = matchGrid[r+1][c] = matchGrid[r+2][c] = anyMatch = true;
+                if (!animalMatchGroups[animal]) animalMatchGroups[animal] = [];
+                animalMatchGroups[animal].push({r: r, c: c}, {r: r+1, c: c}, {r: r+2, c: c});
+            }
+        }
+    }
+
+    if (anyMatch) {
+        isAnimating = true;
+        comboCount++; 
+        updateComboDisplay();
+
+        for (let r = 0; r < BOARD_SIZE; r++) {
+            for (let c = 0; c < BOARD_SIZE; c++) {
+                if (matchGrid[r][c]) {
+                    if (boardState[r][c]?.isRainbow) { isAnimating = false; triggerRainbowExplosion(r, c); return true; }
+                    if (boardState[r][c]?.isBomb) { isAnimating = false; triggerBombExplosion(r, c); return true; }
+                }
+            }
+        }
+
+        let totalMatchCount = 0;
+        let lastMatchedPos = { r: 0, c: 0 }; 
+
+        for (let r = 0; r < BOARD_SIZE; r++) {
+            for (let c = 0; c < BOARD_SIZE; c++) {
+                if (matchGrid[r][c]) {
+                    boardState[r][c].element.classList.add('matched');
+                    totalMatchCount++;
+                    lastMatchedPos = { r: r, c: c };
+                }
+            }
+        }
+
+        currentScore += (totalMatchCount * 10) * comboCount;
+        scoreDisplay.innerText = currentScore;
+
+        // ★新要素：消去によるタイム回復（消した数 × 0.1秒）
+        gainTime(totalMatchCount);
+
+        let rainbowSpawns = [];
+        for (let animal in animalMatchGroups) {
+            let uniquePoints = [];
+            let seen = new Set();
+            animalMatchGroups[animal].forEach(pt => {
+                let key = `${pt.r},${pt.c}`;
+                if (!seen.has(key)) { seen.add(key); uniquePoints.push(pt); }
+            });
+
+            if (uniquePoints.length >= 5) {
+                let sumR = 0, sumC = 0;
+                uniquePoints.forEach(pt => { sumR += pt.r; sumC += pt.c; });
+                rainbowSpawns.push({ r: Math.round(sumR / uniquePoints.length), c: Math.round(sumC / uniquePoints.length), animal: animal });
+            }
+        }
+
+        let spawnBomb = false;
+        let bombChance = Math.min(0.25, Math.pow(comboCount, 2) * 0.01);
+        if (rainbowSpawns.length === 0 && Math.random() < bombChance) {
+            spawnBomb = true;
+        }
+
+        setTimeout(() => {
+            for (let r = 0; r < BOARD_SIZE; r++) {
+                for (let c = 0; c < BOARD_SIZE; c++) {
+                    if (matchGrid[r][c]) {
+                        const el = boardState[r][c].element;
+                        el.style.opacity = '0';
+                        setTimeout(((targetEl) => { return () => targetEl.remove(); })(el), 200);
+                        boardState[r][c] = null;
+                    }
+                }
+            }
+            
+            rainbowSpawns.forEach(spawn => { spawnRainbowTile(spawn.r, spawn.c, spawn.animal); });
+
+            if (spawnBomb && !boardState[lastMatchedPos.r][lastMatchedPos.c]) {
+                spawnBombTile(lastMatchedPos.r, lastMatchedPos.c);
+            }
+
+            setTimeout(dropTiles, 250);
+        }, 300);
+    } else {
+        if (allowUnlock) {
+            isAnimating = false;
+            comboCount = 0; 
+            updateComboDisplay();
+            if (!checkGameOver()) {
+                resetHintTimer();
+            }
+        }
+    }
+    return anyMatch;
+}
+
+function dropTiles() {
+    for (let c = 0; c < BOARD_SIZE; c++) {
+        let emptySpaces = 0;
+        for (let r = BOARD_SIZE - 1; r >= 0; r--) {
+            if (boardState[r][c] === null) {
+                emptySpaces++;
+            } else if (emptySpaces > 0) {
+                boardState[r + emptySpaces][c] = boardState[r][c];
+                boardState[r + emptySpaces][c].element.id = `tile-${r+emptySpaces}-${c}`;
+                boardState[r][c] = null;
+            }
+        }
+
+        for (let i = 0; i < emptySpaces; i++) {
+            const animal = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+            const tile = document.createElement('div');
+            tile.classList.add('tile');
+            tile.innerText = animal;
+            tile.id = `tile-${i}-${c}`;
+            tile.addEventListener('mousedown', dragStart);
+            tile.addEventListener('touchstart', dragStart, { passive: false });
+            container.appendChild(tile);
+
+            const finalPos = getTilePosStyles(i, c);
+            const startY = `-${(emptySpaces - i) * 15}%`;
+            tile.style.transition = 'none';
+            tile.style.left = finalPos.x;
+            tile.style.top = startY;
+            tile.style.opacity = '0';
+
+            boardState[i][c] = { animal: animal, element: tile };
+        }
+    }
+
+    requestAnimationFrame(() => {
+        for (let r = 0; r < BOARD_SIZE; r++) {
+            for (let c = 0; c < BOARD_SIZE; c++) {
+                const data = boardState[r][c];
+                if (data) {
+                    const finalPos = getTilePosStyles(r, c);
+                    data.element.style.opacity = '1';
+                    data.element.style.left = finalPos.x;
+                    data.element.style.top = finalPos.y;
+                }
+            }
+        }
+    });
+
+    setTimeout(() => {
+        checkAndProcessMatches(true);
+    }, 350);
+}
+
+// ★新要素：ゲームオーバーのトリガーを一元化
+function triggerGameOver(reasonText) {
+    isGameOver = true;
+    isAnimating = true; 
+    clearInterval(countdownInterval);
+    clearTimeout(hintTimer);
+    comboCount = 0;
+    updateComboDisplay();
+    
+    gameOverReason.innerText = reasonText;
+    gameOverScreen.classList.add('show');
+}
+
+function checkGameOver() {
+    let simpleGrid = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
+    for (let r = 0; r < BOARD_SIZE; r++) {
+        for (let c = 0; c < BOARD_SIZE; c++) {
+            if (boardState[r][c]) simpleGrid[r][c] = boardState[r][c].animal;
+        }
+    }
+    if (getAvailableMove(simpleGrid) === null) {
+        triggerGameOver("動かせる動物がなくなりました");
+        return true;
+    }
+    return false;
+}
+
+document.addEventListener('mouseup', dragEnd);
+document.addEventListener('touchend', dragEnd, { passive: false });
+
+createBoard();
+</script>
+</body>
+</html>
