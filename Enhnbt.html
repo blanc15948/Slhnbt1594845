@@ -490,12 +490,26 @@
   </div>
 
   <script>
-    const { createApp, ref, computed } = Vue;
+    const { createApp, ref, watch, computed } = Vue;
 
     createApp({
       setup() {
-        // セクション開閉状態（初期値：すべて展開）
-        const activeSections = ref({
+        const STORAGE_KEY = 'fireforce2_analyzer_data';
+
+        // ローカルストレージからの読み込み用ヘルパー
+        const loadSavedData = () => {
+          try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            return saved ? JSON.parse(saved) : null;
+          } catch (e) {
+            return null;
+          }
+        };
+
+        const initialData = loadSavedData() || {};
+
+        // セクション開閉状態
+        const activeSections = ref(initialData.activeSections || {
           sec1: true, sec2: true, sec3: true, sec4: true, sec5: true, sec6: true
         });
 
@@ -512,11 +526,11 @@
           activeSections.value[sectionName] = !activeSections.value[sectionName];
         };
 
-        // 各数値変数は初期値 0
-        const hitGame = ref(0);
-        const game = ref(0);
-        const bonus = ref(0);
-        const loop = ref(0);
+        // 各数値変数（初期値はストレージか0）
+        const hitGame = ref(initialData.hitGame ?? 0);
+        const game = ref(initialData.game ?? 0);
+        const bonus = ref(initialData.bonus ?? 0);
+        const loop = ref(initialData.loop ?? 0);
 
         // --- 初当たり確率のリアルタイム算出プロパティ ---
         const bonusRatio = computed(() => {
@@ -529,42 +543,41 @@
           return `1/${(game.value / loop.value).toFixed(1)}`;
         });
 
-        const normVRepConv = ref(0);
-        const normVRepWin  = ref(0);
-        const normRareConv = ref(0);
-        const normRareWin  = ref(0);
+        const normVRepConv = ref(initialData.normVRepConv ?? 0);
+        const normVRepWin  = ref(initialData.normVRepWin ?? 0);
+        const normRareConv = ref(initialData.normRareConv ?? 0);
+        const normRareWin  = ref(initialData.normRareWin ?? 0);
 
-        const highVRepConv = ref(0);
-        const highVRepWin  = ref(0);
-        const highRareConv = ref(0);
-        const highRareWin  = ref(0);
+        const highVRepConv = ref(initialData.highVRepConv ?? 0);
+        const highVRepWin  = ref(initialData.highVRepWin ?? 0);
+        const highRareConv = ref(initialData.highRareConv ?? 0);
+        const highRareWin  = ref(initialData.highRareWin ?? 0);
 
-        const trapVRep = ref(0);
-        const trapConv = ref(0);
-        const trapWin  = ref(0);
+        const trapVRep = ref(initialData.trapVRep ?? 0);
+        const trapConv = ref(initialData.trapConv ?? 0);
+        const trapWin  = ref(initialData.trapWin ?? 0);
 
-        const watermelonCount = ref(0);
-        const watermelonHighCount = ref(0);
+        const watermelonCount = ref(initialData.watermelonCount ?? 0);
+        const watermelonHighCount = ref(initialData.watermelonHighCount ?? 0);
 
-        const regDefault = ref(0);
-        const regOdd = ref(0);
-        const regEven = ref(0);
-        const regHighWeak = ref(0);
-        const regHighStrong = ref(0);
-        const regSpecialFlag = ref(0);
-        const mamoru = ref({ 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 });
+        const regDefault = ref(initialData.regDefault ?? 0);
+        const regOdd = ref(initialData.regOdd ?? 0);
+        const regEven = ref(initialData.regEven ?? 0);
+        const regHighWeak = ref(initialData.regHighWeak ?? 0);
+        const regHighStrong = ref(initialData.regHighStrong ?? 0);
+        const regSpecialFlag = ref(initialData.regSpecialFlag ?? 0);
+        const mamoru = ref(initialData.mamoru || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 });
 
-        const bigScreenDefault = ref(0);
-        const bigScreenWeak = ref(0);
-        const bigScreenStrong = ref(0);
-        const bigScreen4Over = ref(0);
-        const regScreenDefault = ref(0);
-        const regScreenWeak = ref(0);
-        const regScreenStrong = ref(0);
-        const regScreen4Over = ref(0);
+        const bigScreenDefault = ref(initialData.bigScreenDefault ?? 0);
+        const bigScreenWeak = ref(initialData.bigScreenWeak ?? 0);
+        const bigScreenStrong = ref(initialData.bigScreenStrong ?? 0);
+        const bigScreen4Over = ref(initialData.bigScreen4Over ?? 0);
+        const regScreenDefault = ref(initialData.regScreenDefault ?? 0);
+        const regScreenWeak = ref(initialData.regScreenWeak ?? 0);
+        const regScreenStrong = ref(initialData.regScreenStrong ?? 0);
+        const regScreen4Over = ref(initialData.regScreen4Over ?? 0);
 
-        // confirmFlagsを複数保持するため配列に変更
-        const confirmFlags = ref([]);
+        const confirmFlags = ref(initialData.confirmFlags || []);
 
         const toggleConfirmFlag = (val) => {
           const idx = confirmFlags.value.indexOf(val);
@@ -584,7 +597,7 @@
           if (hitGame.value > 0) {
             game.value += hitGame.value;
             bonus.value += 1;
-            hitGame.value = 0; // 加算後にクリア
+            hitGame.value = 0;
           }
         };
 
@@ -593,7 +606,7 @@
           if (hitGame.value > 0) {
             game.value += hitGame.value;
             loop.value += 1;
-            hitGame.value = 0; // 加算後にクリア
+            hitGame.value = 0;
           }
         };
 
@@ -656,7 +669,7 @@
 
         const regScreenDefaultProb = [0.88, 0.85, 0.81, 0.76, 0.69, 0.61];
         const regScreenWeakProb    = [0.10, 0.12, 0.15, 0.18, 0.22, 0.25];
-        const regScreenStrongProb = [0.02, 0.03, 0.04, 0.06, 0.09, 0.14];
+        const regScreenStrongProb  = [0.02, 0.03, 0.04, 0.06, 0.09, 0.14];
         const regScreen4OverProb   = [0, 0, 0, 0.05, 0.03, 0.03];
 
         const ncr = (n, r) => {
@@ -678,7 +691,6 @@
             const settingNum = i + 1;
 
             if (game.value > 0) {
-              // 設定1より悪い場合は設定1の確率で固定、設定6より良い場合は設定6の確率で固定して頭打ちにする
               let bProb = bonusProb[i];
               let lProb = loopProb[i];
 
@@ -777,7 +789,59 @@
           return likelihoods.map(l => l / sum);
         });
 
+        // データの変更を監視して自動保存（深層監視）
+        watch([
+          activeSections, hitGame, game, bonus, loop,
+          normVRepConv, normVRepWin, normRareConv, normRareWin,
+          highVRepConv, highVRepWin, highRareConv, highRareWin,
+          trapVRep, trapConv, trapWin,
+          watermelonCount, watermelonHighCount,
+          regDefault, regOdd, regEven, regHighWeak, regHighStrong, regSpecialFlag, mamoru,
+          bigScreenDefault, bigScreenWeak, bigScreenStrong, bigScreen4Over,
+          regScreenDefault, regScreenWeak, regScreenStrong, regScreen4Over,
+          confirmFlags
+        ], () => {
+          const stateToSave = {
+            activeSections: activeSections.value,
+            hitGame: hitGame.value,
+            game: game.value,
+            bonus: bonus.value,
+            loop: loop.value,
+            normVRepConv: normVRepConv.value,
+            normVRepWin: normVRepWin.value,
+            normRareConv: normRareConv.value,
+            normRareWin: normRareWin.value,
+            highVRepConv: highVRepConv.value,
+            highVRepWin: highVRepWin.value,
+            highRareConv: highRareConv.value,
+            highRareWin: highRareWin.value,
+            trapVRep: trapVRep.value,
+            trapConv: trapConv.value,
+            trapWin: trapWin.value,
+            watermelonCount: watermelonCount.value,
+            watermelonHighCount: watermelonHighCount.value,
+            regDefault: regDefault.value,
+            regOdd: regOdd.value,
+            regEven: regEven.value,
+            regHighWeak: regHighWeak.value,
+            regHighStrong: regHighStrong.value,
+            regSpecialFlag: regSpecialFlag.value,
+            mamoru: mamoru.value,
+            bigScreenDefault: bigScreenDefault.value,
+            bigScreenWeak: bigScreenWeak.value,
+            bigScreenStrong: bigScreenStrong.value,
+            bigScreen4Over: bigScreen4Over.value,
+            regScreenDefault: regScreenDefault.value,
+            regScreenWeak: regScreenWeak.value,
+            regScreenStrong: regScreenStrong.value,
+            regScreen4Over: regScreen4Over.value,
+            confirmFlags: confirmFlags.value
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+        }, { deep: true });
+
         const resetAll = () => {
+          localStorage.removeItem(STORAGE_KEY);
           hitGame.value = 0;
           game.value = 0; bonus.value = 0; loop.value = 0;
           normVRepConv.value = 0; normVRepWin.value = 0; normRareConv.value = 0; normRareWin.value = 0;
