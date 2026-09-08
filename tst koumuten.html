@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>樋渡工務店 | Hiwatari Architects & Builders</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            950: '#060B18',
+                            900: '#0A1128',
+                            800: '#131B36',
+                            700: '#1D274A',
+                        },
+                        gold: {
+                            DEFAULT: '#C5A059',
+                            light: '#D4AF37',
+                            dark: '#A3813B'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['"Noto Serif JP"', 'serif'],
+                        sans: ['"Montserrat"', '"Noto Sans JP"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&family=Noto+Serif+JP:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Montserrat', 'Noto Sans JP', sans-serif;
+            background-color: #0A1128;
+            color: #E2E8F0;
+            overflow-x: hidden;
+        }
+        .font-serif-jp {
+            font-family: 'Noto Serif JP', serif;
+        }
+        /* スクロールアニメーション用初期スタイル */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1), transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* ヘッダーの背景ガラス効果 */
+        .glass-header {
+            background: rgba(10, 17, 40, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-navy-900 text-slate-200 antialiased selection:bg-gold selection:text-navy-950">
+
+    <!-- HEADER -->
+    <header id="header" class="fixed top-0 left-0 w-full z-50 transition-all duration-500 py-6 px-8 md:px-16 flex justify-between items-center border-b border-white/5">
+        <a href="#" class="font-serif-jp tracking-widest text-lg md:text-xl font-light text-white flex items-center gap-3">
+            <span class="inline-block w-2 h-2 rounded-full bg-gold"></span>
+            樋渡工務店
+        </a>
+        <nav class="hidden md:flex items-center space-x-12 text-xs uppercase tracking-[0.25em] text-slate-300">
+            <a href="#concept" class="hover:text-gold transition-colors duration-300">Concept</a>
+            <a href="#works" class="hover:text-gold transition-colors duration-300">Works</a>
+            <a href="#craft" class="hover:text-gold transition-colors duration-300">Craft</a>
+            <a href="#contact" class="text-gold border-b border-gold/40 pb-1 hover:border-gold transition-all duration-300">Contact</a>
+        </nav>
+        <!-- Mobile Menu Button -->
+        <button id="menu-btn" class="md:hidden text-white focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="relative h-screen w-full flex items-center justify-center overflow-hidden">
+        <!-- Background Image with Dark Navy Gradient Overlay -->
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80" alt="Hero Background" class="w-full h-full object-cover object-center scale-105 animate-[pulse_10s_ease-in-out_infinite] transition-transform duration-1000">
+            <div class="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/60 to-navy-900/40"></div>
+            <div class="absolute inset-0 bg-navy-950/30"></div>
+        </div>
+
+        <!-- Hero Content -->
+        <div class="relative z-10 text-center px-6 max-w-4xl mx-auto mt-12">
+            <p class="text-gold tracking-[0.3em] text-xs md:text-sm uppercase mb-6 font-medium reveal">Architecture of Silence & Light</p>
+            <h1 class="font-serif-jp text-3xl md:text-5xl lg:text-6xl font-light tracking-wider leading-relaxed text-white mb-8 reveal" style="transition-delay: 200ms;">
+                夜の静けさも、朝の光も、<br>すべてが美しくなる空間。
+            </h1>
+            <div class="w-12 h-[1px] bg-gold mx-auto mb-8 reveal" style="transition-delay: 400ms;"></div>
+            <p class="text-slate-400 text-sm md:text-base font-light tracking-widest reveal" style="transition-delay: 600ms;">
+                樋渡工務店が描く、研ぎ澄まされた邸宅の物語。
+            </p>
+        </div>
+
+        <!-- Scroll Down Indicator -->
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center opacity-70">
+            <span class="text-[10px] uppercase tracking-[0.3em] text-slate-400 mb-2">Scroll</span>
+            <div class="w-[1px] h-12 bg-gradient-to-b from-gold to-transparent animate-pulse"></div>
+        </div>
+    </section>
+
+    <!-- CONCEPT SECTION -->
+    <section id="concept" class="py-32 md:py-48 px-8 md:px-16 bg-navy-900 relative">
+        <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-16 items-center">
+            <div class="md:col-span-5 reveal">
+                <span class="text-gold text-xs uppercase tracking-[0.3em] block mb-4">Our Philosophy</span>
+                <h2 class="font-serif-jp text-2xl md:text-4xl font-light text-white leading-relaxed mb-6">
+                    光と影が織りなす、<br>美しき箱をつくる。
+                </h2>
+                <div class="w-8 h-[1px] bg-gold/50 mb-6"></div>
+            </div>
+            <div class="md:col-span-7 reveal" style="transition-delay: 200ms;">
+                <p class="text-slate-300 font-light leading-loose text-sm md:text-base mb-6">
+                    樋渡工務店がつくるのは、単なる「家」ではありません。外の喧騒を忘れさせる深いネイビーの静謐さと、厳選された無垢の木の温もりが美しく共存する空間です。
+                </p>
+                <p class="text-slate-400 font-light leading-loose text-sm md:text-base">
+                    計算し尽くされた窓の配置、移り変わる時間とともに表情を変える影のコントラスト。あなたの人生の背景となる、決して色褪せない舞台を仕立てます。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- WORKS SECTION (Transition to clean off-white for gallery contrast) -->
+    <section id="works" class="py-32 px-8 md:px-16 bg-[#F8F9FA] text-navy-950 relative">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 reveal">
+                <div>
+                    <span class="text-gold-dark text-xs uppercase tracking-[0.3em] block mb-3 font-semibold">Selected Works</span>
+                    <h2 class="font-serif-jp text-3xl md:text-4xl font-light tracking-wide text-navy-950">施工事例</h2>
+                </div>
+                <p class="text-slate-500 text-xs tracking-widest mt-4 md:mt-0">ARCHITECTURAL PORTFOLIO</p>
+            </div>
+
+            <!-- Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+                <!-- Item 1 -->
+                <div class="group cursor-pointer reveal">
+                    <div class="overflow-hidden bg-slate-200 aspect-[4/3] mb-6 relative">
+                        <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80" alt="Works 1" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                        <div class="absolute inset-0 bg-navy-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    </div>
+                    <span class="text-gold-dark text-[11px] uppercase tracking-[0.2em] font-medium block mb-2">Residence in Chiba</span>
+                    <h3 class="font-serif-jp text-xl md:text-2xl font-normal group-hover:text-gold-dark transition-colors duration-300">光と影を纏うコートハウス</h3>
+                </div>
+                <!-- Item 2 -->
+                <div class="group cursor-pointer reveal" style="transition-delay: 200ms;">
+                    <div class="overflow-hidden bg-slate-200 aspect-[4/3] mb-6 relative">
+                        <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80" alt="Works 2" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                        <div class="absolute inset-0 bg-navy-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    </div>
+                    <span class="text-gold-dark text-[11px] uppercase tracking-[0.2em] font-medium block mb-2">Private Villa</span>
+                    <h3 class="font-serif-jp text-xl md:text-2xl font-normal group-hover:text-gold-dark transition-colors duration-300">水平線に寄り添う平屋</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CRAFT SECTION -->
+    <section id="craft" class="py-32 md:py-48 px-8 md:px-16 bg-navy-800 relative">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-20 reveal">
+                <span class="text-gold text-xs uppercase tracking-[0.3em] block mb-3">Our Craft</span>
+                <h2 class="font-serif-jp text-3xl md:text-4xl font-light text-white">妥協なき美意識と技術</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <!-- Pillar 1 -->
+                <div class="border-t border-white/10 pt-8 reveal">
+                    <span class="text-gold font-serif-jp text-lg block mb-4">01. Material</span>
+                    <h3 class="font-serif-jp text-xl text-white mb-4">経年変化の美しい素材</h3>
+                    <p class="text-slate-400 font-light text-sm leading-relaxed">年月を経るごとに深みを増す無垢の木と、空間を引き締める真鍮や天然石を厳選して使用。</p>
+                </div>
+                <!-- Pillar 2 -->
+                <div class="border-t border-white/10 pt-8 reveal" style="transition-delay: 200ms;">
+                    <span class="text-gold font-serif-jp text-lg block mb-4">02. Design</span>
+                    <h3 class="font-serif-jp text-xl text-white mb-4">計算された空間設計</h3>
+                    <p class="text-slate-400 font-light text-sm leading-relaxed">土地の気候風土、光の入り方、風の抜ける道を緻密に計算し、心地よさをデザイン。</p>
+                </div>
+                <!-- Pillar 3 -->
+                <div class="border-t border-white/10 pt-8 reveal" style="transition-delay: 400ms;">
+                    <span class="text-gold font-serif-jp text-lg block mb-4">03. Artisan</span>
+                    <h3 class="font-serif-jp text-xl text-white mb-4">孤高の職人技</h3>
+                    <p class="text-slate-400 font-light text-sm leading-relaxed">細部の納まりにまでこだわり抜く、確かな技術を持った専属職人たちの手仕事。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section id="contact" class="py-32 px-8 md:px-16 bg-navy-950 text-center relative border-t border-white/5">
+        <div class="max-w-3xl mx-auto reveal">
+            <span class="text-gold text-xs uppercase tracking-[0.3em] block mb-6">Contact & Consultation</span>
+            <h2 class="font-serif-jp text-2xl md:text-4xl font-light text-white mb-8 leading-relaxed">
+                あなたの理想の暮らしについて、<br>静かに語り合いませんか？
+            </h2>
+            <p class="text-slate-400 text-sm font-light mb-12 tracking-wider">
+                設計のご相談、モデルハウスのご案内など、お気軽にお問い合わせください。
+            </p>
+            <a href="mailto:info@example.com" class="inline-block border border-gold text-gold hover:bg-gold hover:text-navy-950 px-10 py-4 text-xs uppercase tracking-[0.25em] transition-all duration-500 font-medium">
+                個別相談会を予約する
+            </a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="py-12 px-8 md:px-16 bg-navy-950 text-center border-t border-white/5 text-xs text-slate-500 tracking-widest">
+        <p>&copy; Hiwatari Carpenters All Rights Reserved.</p>
+    </footer>
+
+    <!-- INTERACTION SCRIPT -->
+    <script>
+        // Header scroll effect
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('glass-header', 'py-4');
+                header.classList.remove('py-6');
+            } else {
+                header.classList.remove('glass-header', 'py-4');
+                header.classList.add('py-6');
+            }
+        });
+
+        // Scroll reveal animation observer
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.15
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
