@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>樋渡工務店 | Hiwatari Architects & Builders</title>
+    <title>樋渡工務店 | お客様ファーストの家づくり</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -34,7 +34,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&family=Noto+Serif+JP:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&family=Noto+Serif+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
     
     <style>
         body {
@@ -46,7 +46,6 @@
         .font-serif-jp {
             font-family: 'Noto Serif JP', serif;
         }
-        /* スクロールアニメーション用初期スタイル */
         .reveal {
             opacity: 0;
             transform: translateY(40px);
@@ -56,7 +55,6 @@
             opacity: 1;
             transform: translateY(0);
         }
-        /* ヘッダーの背景ガラス効果 */
         .glass-header {
             background: rgba(10, 17, 40, 0.85);
             backdrop-filter: blur(12px);
@@ -68,14 +66,14 @@
 
     <!-- HEADER -->
     <header id="header" class="fixed top-0 left-0 w-full z-50 transition-all duration-500 py-6 px-8 md:px-16 flex justify-between items-center border-b border-white/5">
-        <a href="#" class="font-serif-jp tracking-widest text-lg md:text-xl font-light text-white flex items-center gap-3">
+        <a href="#" class="font-serif-jp tracking-widest text-lg md:text-xl font-bold text-white flex items-center gap-3">
             <span class="inline-block w-2 h-2 rounded-full bg-gold"></span>
             樋渡工務店
         </a>
-        <nav class="hidden md:flex items-center space-x-12 text-xs uppercase tracking-[0.25em] text-slate-300">
+        <nav class="hidden md:flex items-center space-x-12 text-xs uppercase tracking-[0.20em] text-slate-300">
             <a href="#concept" class="hover:text-gold transition-colors duration-300">Concept</a>
             <a href="#works" class="hover:text-gold transition-colors duration-300">Works</a>
-            <a href="#craft" class="hover:text-gold transition-colors duration-300">Craft</a>
+            <a href="#craft" class="hover:text-gold transition-colors duration-300">Commitment</a>
             <a href="#contact" class="text-gold border-b border-gold/40 pb-1 hover:border-gold transition-all duration-300">Contact</a>
         </nav>
         <!-- Mobile Menu Button -->
@@ -86,26 +84,22 @@
 
     <!-- HERO SECTION -->
     <section class="relative h-screen w-full flex items-center justify-center overflow-hidden">
-        <!-- Background Image with Dark Navy Gradient Overlay -->
         <div class="absolute inset-0 z-0">
-            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80" alt="Hero Background" class="w-full h-full object-cover object-center scale-105 animate-[pulse_10s_ease-in-out_infinite] transition-transform duration-1000">
-            <div class="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/60 to-navy-900/40"></div>
-            <div class="absolute inset-0 bg-navy-950/30"></div>
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80" alt="Hero Background" class="w-full h-full object-cover object-center scale-105 transition-transform duration-1000">
+            <div class="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/70 to-navy-900/50"></div>
         </div>
 
-        <!-- Hero Content -->
         <div class="relative z-10 text-center px-6 max-w-4xl mx-auto mt-12">
-            <p class="text-gold tracking-[0.3em] text-xs md:text-sm uppercase mb-6 font-medium reveal">Architecture of Silence & Light</p>
-            <h1 class="font-serif-jp text-3xl md:text-5xl lg:text-6xl font-light tracking-wider leading-relaxed text-white mb-8 reveal" style="transition-delay: 200ms;">
-                夜の静けさも、朝の光も、<br>すべてが美しくなる空間。
+            <p class="text-gold tracking-[0.25em] text-xs md:text-sm uppercase mb-6 font-semibold reveal">Customer First & Safety Build</p>
+            <h1 class="font-serif-jp text-2xl md:text-4xl lg:text-5xl font-bold tracking-wider leading-relaxed text-white mb-8 reveal" style="transition-delay: 200ms;">
+                お客様ファーストで、ご要望に寄り添う。<br>安心・安全第二で、真面目に建てます。
             </h1>
             <div class="w-12 h-[1px] bg-gold mx-auto mb-8 reveal" style="transition-delay: 400ms;"></div>
-            <p class="text-slate-400 text-sm md:text-base font-light tracking-widest reveal" style="transition-delay: 600ms;">
-                樋渡工務店が描く、研ぎ澄まされた邸宅の物語。
+            <p class="text-slate-300 text-sm md:text-base font-light tracking-widest reveal" style="transition-delay: 600ms;">
+                「頼んでよかった」と言っていただける施工を、樋渡工務店がお約束します。
             </p>
         </div>
 
-        <!-- Scroll Down Indicator -->
         <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center opacity-70">
             <span class="text-[10px] uppercase tracking-[0.3em] text-slate-400 mb-2">Scroll</span>
             <div class="w-[1px] h-12 bg-gradient-to-b from-gold to-transparent animate-pulse"></div>
@@ -116,53 +110,50 @@
     <section id="concept" class="py-32 md:py-48 px-8 md:px-16 bg-navy-900 relative">
         <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-16 items-center">
             <div class="md:col-span-5 reveal">
-                <span class="text-gold text-xs uppercase tracking-[0.3em] block mb-4">Our Philosophy</span>
-                <h2 class="font-serif-jp text-2xl md:text-4xl font-light text-white leading-relaxed mb-6">
-                    光と影が織りなす、<br>美しき箱をつくる。
+                <span class="text-gold text-xs uppercase tracking-[0.3em] block mb-4 font-semibold">Our Promise</span>
+                <h2 class="font-serif-jp text-2xl md:text-3xl font-bold text-white leading-relaxed mb-6">
+                    あなたの「こんな家にしたい」を、<br>とことん聞かせてください。
                 </h2>
                 <div class="w-8 h-[1px] bg-gold/50 mb-6"></div>
             </div>
             <div class="md:col-span-7 reveal" style="transition-delay: 200ms;">
-                <p class="text-slate-300 font-light leading-loose text-sm md:text-base mb-6">
-                    樋渡工務店がつくるのは、単なる「家」ではありません。外の喧騒を忘れさせる深いネイビーの静謐さと、厳選された無垢の木の温もりが美しく共存する空間です。
+                <p class="text-slate-200 font-light leading-loose text-sm md:text-base mb-6">
+                    樋渡工務店が何よりも大切にしているのは、お客様との対話です。理想のライフスタイル、こだわりたいご要望、予算のことまで、どんなことでもまずは気軽にご相談ください。
                 </p>
-                <p class="text-slate-400 font-light leading-loose text-sm md:text-base">
-                    計算し尽くされた窓の配置、移り変わる時間とともに表情を変える影のコントラスト。あなたの人生の背景となる、決して色褪せない舞台を仕立てます。
+                <p class="text-slate-300 font-light leading-loose text-sm md:text-base">
+                    「こうしたい」という想いにしっかり寄り添い、プロの提案力をプラスして、期待を超えるカタチにします。
                 </p>
             </div>
         </div>
     </section>
 
-    <!-- WORKS SECTION (Transition to clean off-white for gallery contrast) -->
+    <!-- WORKS SECTION -->
     <section id="works" class="py-32 px-8 md:px-16 bg-[#F8F9FA] text-navy-950 relative">
         <div class="max-w-6xl mx-auto">
             <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 reveal">
                 <div>
-                    <span class="text-gold-dark text-xs uppercase tracking-[0.3em] block mb-3 font-semibold">Selected Works</span>
-                    <h2 class="font-serif-jp text-3xl md:text-4xl font-light tracking-wide text-navy-950">施工事例</h2>
+                    <span class="text-gold-dark text-xs uppercase tracking-[0.3em] block mb-3 font-semibold">Works</span>
+                    <h2 class="font-serif-jp text-3xl md:text-4xl font-bold tracking-wide text-navy-950">施工事例</h2>
                 </div>
-                <p class="text-slate-500 text-xs tracking-widest mt-4 md:mt-0">ARCHITECTURAL PORTFOLIO</p>
+                <p class="text-slate-500 text-xs tracking-widest mt-4 md:mt-0">私たちが手がけた住まいの数々です</p>
             </div>
 
-            <!-- Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
                 <!-- Item 1 -->
                 <div class="group cursor-pointer reveal">
                     <div class="overflow-hidden bg-slate-200 aspect-[4/3] mb-6 relative">
                         <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80" alt="Works 1" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
-                        <div class="absolute inset-0 bg-navy-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     </div>
-                    <span class="text-gold-dark text-[11px] uppercase tracking-[0.2em] font-medium block mb-2">Residence in Chiba</span>
-                    <h3 class="font-serif-jp text-xl md:text-2xl font-normal group-hover:text-gold-dark transition-colors duration-300">光と影を纏うコートハウス</h3>
+                    <span class="text-gold-dark text-[11px] uppercase tracking-[0.2em] font-semibold block mb-2">注文住宅</span>
+                    <h3 class="font-serif-jp text-xl md:text-2xl font-bold group-hover:text-gold-dark transition-colors duration-300">家族の笑顔が集まる、明るいリビングの家</h3>
                 </div>
                 <!-- Item 2 -->
                 <div class="group cursor-pointer reveal" style="transition-delay: 200ms;">
                     <div class="overflow-hidden bg-slate-200 aspect-[4/3] mb-6 relative">
                         <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80" alt="Works 2" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
-                        <div class="absolute inset-0 bg-navy-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     </div>
-                    <span class="text-gold-dark text-[11px] uppercase tracking-[0.2em] font-medium block mb-2">Private Villa</span>
-                    <h3 class="font-serif-jp text-xl md:text-2xl font-normal group-hover:text-gold-dark transition-colors duration-300">水平線に寄り添う平屋</h3>
+                    <span class="text-gold-dark text-[11px] uppercase tracking-[0.2em] font-semibold block mb-2">リノベーション</span>
+                    <h3 class="font-serif-jp text-xl md:text-2xl font-bold group-hover:text-gold-dark transition-colors duration-300">古き良きものを活かした、こだわり平屋</h3>
                 </div>
             </div>
         </div>
@@ -172,28 +163,28 @@
     <section id="craft" class="py-32 md:py-48 px-8 md:px-16 bg-navy-800 relative">
         <div class="max-w-5xl mx-auto">
             <div class="text-center mb-20 reveal">
-                <span class="text-gold text-xs uppercase tracking-[0.3em] block mb-3">Our Craft</span>
-                <h2 class="font-serif-jp text-3xl md:text-4xl font-light text-white">妥協なき美意識と技術</h2>
+                <span class="text-gold text-xs uppercase tracking-[0.3em] block mb-3 font-semibold">Commitment</span>
+                <h2 class="font-serif-jp text-3xl md:text-4xl font-bold text-white">樋渡工務店が選ばれる3つの理由</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
                 <!-- Pillar 1 -->
                 <div class="border-t border-white/10 pt-8 reveal">
-                    <span class="text-gold font-serif-jp text-lg block mb-4">01. Material</span>
-                    <h3 class="font-serif-jp text-xl text-white mb-4">経年変化の美しい素材</h3>
-                    <p class="text-slate-400 font-light text-sm leading-relaxed">年月を経るごとに深みを増す無垢の木と、空間を引き締める真鍮や天然石を厳選して使用。</p>
+                    <span class="text-gold font-serif-jp text-lg block mb-4 font-bold">01. お客様ファースト</span>
+                    <h3 class="font-serif-jp text-xl text-white mb-4 font-bold">ご要望にとことん寄り添う</h3>
+                    <p class="text-slate-300 font-light text-sm leading-relaxed">「予算内でこんなことできる？」といったご相談も大歓迎。お客様の立場に立って、ベストな方法を一緒に考えます。</p>
                 </div>
                 <!-- Pillar 2 -->
                 <div class="border-t border-white/10 pt-8 reveal" style="transition-delay: 200ms;">
-                    <span class="text-gold font-serif-jp text-lg block mb-4">02. Design</span>
-                    <h3 class="font-serif-jp text-xl text-white mb-4">計算された空間設計</h3>
-                    <p class="text-slate-400 font-light text-sm leading-relaxed">土地の気候風土、光の入り方、風の抜ける道を緻密に計算し、心地よさをデザイン。</p>
+                    <span class="text-gold font-serif-jp text-lg block mb-4 font-bold">02. 安全第一の現場</span>
+                    <h3 class="font-serif-jp text-xl text-white mb-4 font-bold">安心・安全な作業の徹底</h3>
+                    <p class="text-slate-300 font-light text-sm leading-relaxed">どれほどデザインが良くても、現場の安全と頑丈な施工がなければ意味がありません。安全第一で、丁寧な作業に取り掛かります。</p>
                 </div>
                 <!-- Pillar 3 -->
                 <div class="border-t border-white/10 pt-8 reveal" style="transition-delay: 400ms;">
-                    <span class="text-gold font-serif-jp text-lg block mb-4">03. Artisan</span>
-                    <h3 class="font-serif-jp text-xl text-white mb-4">孤高の職人技</h3>
-                    <p class="text-slate-400 font-light text-sm leading-relaxed">細部の納まりにまでこだわり抜く、確かな技術を持った専属職人たちの手仕事。</p>
+                    <span class="text-gold font-serif-jp text-lg block mb-4 font-bold">03. 熟練の職人技</span>
+                    <h3 class="font-serif-jp text-xl text-white mb-4 font-bold">確かな技術で形にする</h3>
+                    <p class="text-slate-300 font-light text-sm leading-relaxed">長年培ってきた確かな職人技で、細部まで手を抜かず、長く安心して暮らせる頑丈な住まいをつくり上げます。</p>
                 </div>
             </div>
         </div>
@@ -202,27 +193,26 @@
     <!-- CTA SECTION -->
     <section id="contact" class="py-32 px-8 md:px-16 bg-navy-950 text-center relative border-t border-white/5">
         <div class="max-w-3xl mx-auto reveal">
-            <span class="text-gold text-xs uppercase tracking-[0.3em] block mb-6">Contact & Consultation</span>
-            <h2 class="font-serif-jp text-2xl md:text-4xl font-light text-white mb-8 leading-relaxed">
-                あなたの理想の暮らしについて、<br>静かに語り合いませんか？
+            <span class="text-gold text-xs uppercase tracking-[0.3em] block mb-6 font-semibold">Contact Us</span>
+            <h2 class="font-serif-jp text-2xl md:text-4xl font-bold text-white mb-8 leading-relaxed">
+                家づくりに関する疑問やご要望、<br>なんでもお気軽にご相談ください！
             </h2>
-            <p class="text-slate-400 text-sm font-light mb-12 tracking-wider">
-                設計のご相談、モデルハウスのご案内など、お気軽にお問い合わせください。
+            <p class="text-slate-300 text-sm font-light mb-12 tracking-wider">
+                「まだ具体的には決まっていないけれど話を聞いてみたい」という段階でも大歓迎です。
             </p>
-            <a href="mailto:info@example.com" class="inline-block border border-gold text-gold hover:bg-gold hover:text-navy-950 px-10 py-4 text-xs uppercase tracking-[0.25em] transition-all duration-500 font-medium">
-                個別相談会を予約する
+            <a href="mailto:info@example.com" class="inline-block border border-gold text-gold hover:bg-gold hover:text-navy-950 px-10 py-4 text-xs uppercase tracking-[0.25em] transition-all duration-500 font-bold">
+                無料相談・お問い合わせはこちら
             </a>
         </div>
     </section>
 
     <!-- FOOTER -->
-    <footer class="py-12 px-8 md:px-16 bg-navy-950 text-center border-t border-white/5 text-xs text-slate-500 tracking-widest">
+    <footer class="py-12 px-8 md:px-16 bg-navy-950 text-center border-t border-white/5 text-xs text-slate-400 tracking-widest">
         <p>&copy; Hiwatari Carpenters All Rights Reserved.</p>
     </footer>
 
     <!-- INTERACTION SCRIPT -->
     <script>
-        // Header scroll effect
         const header = document.getElementById('header');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 50) {
@@ -234,7 +224,6 @@
             }
         });
 
-        // Scroll reveal animation observer
         const observerOptions = {
             root: null,
             rootMargin: '0px',
